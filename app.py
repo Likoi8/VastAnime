@@ -986,14 +986,62 @@ def create_app():
     app = web.Application(middlewares=[error_middleware])
     aiohttp_session.setup(app, EncryptedCookieStorage(config.get_session_secret()))
     app.middlewares.append(visit_middleware)
+def cache_img_filter(url):
+    from urllib.parse import quote
+    if not url or not str(url).startswith("http"):
+        return url
+    return "/img/" + quote(url, safe="")
+
+
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader(os.path.join(BASE_DIR, "templates")),
         context_processors=[css_version_processor, user_context_processor, js_version_processor],
     )
+    aiohttp_jinja2.get_env(app).filters["cache_img"] = cache_img_filter
     app.on_startup.append(_init_db)
     app.on_startup.append(_start_cache_warmer)
     app.on_cleanup.append(_stop_cache_warmer)
+
+async def img_proxy(request):
+    import hashlib
+    from urllib.parse import unquote
+    encoded = request.match_info["encoded"]
+    original_url = unquote(encoded)
+    if not original_url.startswith("http"):
+        return web.Response(status=400, text="bad url")
+
+    cache_dir = os.path.join(BASE_DIR, "static", "img_cache")
+    os.makedirs(cache_dir, exist_ok=True)
+
+    ext = os.path.splitext(original_url.split("?")[0])[1]
+    if ext.lower() not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+        ext = ".jpg"
+    filename = hashlib.sha256(original_url.encode()).hexdigest() + ext
+    filepath = os.path.join(cache_dir, filename)
+
+    if not os.path.exists(filepath):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(original_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                    if resp.status != 200:
+                        return web.Response(status=502, text="upstream error")
+                    data = await resp.read()
+            with open(filepath, "wb") as f:
+                f.write(data)
+        except Exception:
+            return web.Response(status=502, text="fetch failed")
+
+    content_type = {
+        ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
+    }.get(ext.lower(), "image/jpeg")
+
+    return web.FileResponse(
+        filepath,
+        headers={"Cache-Control": "public, max-age=2592000", "Content-Type": content_type},
+    )
+
 
     app.router.add_get("/", index)
     app.router.add_get("/discover", discover)
@@ -1041,6 +1089,7 @@ def create_app():
     app.router.add_get("/kodik.txt", kodik_verify)
     app.router.add_get("/robots.txt", robots_txt)
     app.router.add_get("/sitemap.xml", sitemap_xml)
+    app.router.add_get("/img/{encoded}", img_proxy)
     app.router.add_static("/static", os.path.join(BASE_DIR, "static"))
     return app
 
