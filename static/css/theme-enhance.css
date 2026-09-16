@@ -166,6 +166,12 @@ body.is-home .site-main {
   height: 1.3em;
   flex-shrink: 0;
 }
+@media (max-width: 992px) {
+  .dev-badge-icon {
+    width: 1.05em;
+    height: 1.05em;
+  }
+}
 .dev-badge-tooltip {
   position: absolute;
   bottom: 130%;
