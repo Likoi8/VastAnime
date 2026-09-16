@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_dev_badge.html" import dev_badge %}
 {% block title %}Профиль — VastAnime{% endblock %}
 {% block nav_profile_active %}active{% endblock %}
 {% block header %}{% endblock %}
@@ -7,7 +8,7 @@
   {% if profile_user.avatar %}
   <img class="profile-avatar" src="{{ profile_user.avatar }}" alt="{{ profile_user.name }}">
   {% endif %}
-  <h2 class="profile-name">{{ profile_user.name }}</h2>
+  <h2 class="profile-name">{{ profile_user.name }} {{ dev_badge(profile_user) }}</h2>
   <p class="profile-email">{{ profile_user.email }}</p>
   {% if joined_display %}
   <p class="profile-meta">С нами с {{ joined_display }}</p>
