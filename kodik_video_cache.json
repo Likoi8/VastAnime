@@ -3190,5 +3190,53 @@
   "1575": {
     "has_video": true,
     "checked_at_ts": 1789588646.6202266
+  },
+  "15199": {
+    "has_video": false,
+    "checked_at_ts": 1789588733.3649254
+  },
+  "18881": {
+    "has_video": false,
+    "checked_at_ts": 1789588733.6784453
+  },
+  "15201": {
+    "has_video": false,
+    "checked_at_ts": 1789588733.9609642
+  },
+  "15197": {
+    "has_video": false,
+    "checked_at_ts": 1789588734.262639
+  },
+  "17277": {
+    "has_video": false,
+    "checked_at_ts": 1789588734.584103
+  },
+  "2124": {
+    "has_video": false,
+    "checked_at_ts": 1789588734.8984053
+  },
+  "1953": {
+    "has_video": true,
+    "checked_at_ts": 1789588735.334474
+  },
+  "8728": {
+    "has_video": true,
+    "checked_at_ts": 1789588735.6436956
+  },
+  "9591": {
+    "has_video": false,
+    "checked_at_ts": 1789588735.7803855
+  },
+  "8888": {
+    "has_video": true,
+    "checked_at_ts": 1789588736.2434955
+  },
+  "5163": {
+    "has_video": false,
+    "checked_at_ts": 1789588736.3897843
+  },
+  "4596": {
+    "has_video": true,
+    "checked_at_ts": 1789588736.8396711
   }
 }
