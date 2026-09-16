@@ -1,0 +1,147 @@
+/* ===== VastAnime — visual refresh: richer black/violet palette + motion ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap');
+
+:root {
+  /* deeper, richer black-violet base */
+  --bg: #0c0a15;
+  --bg-elevated: #1a1526;
+  --bg-elevated-2: #241c36;
+  --text: #f1ecf9;
+  --text-muted: #a89ac2;
+  --accent: #e8a3b9;
+  --accent-2: #a970ff;
+  --accent-soft: rgba(169, 112, 255, 0.16);
+  --border: #2c2440;
+  --glow: rgba(169, 112, 255, 0.35);
+  --radius: 14px;
+}
+
+/* subtle fixed glow in the corners, no per-element decoration */
+body {
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(169,112,255,0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(232,163,185,0.06), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* accent brand mark in the header (site currently has none) */
+.brand-mark {
+  font-family: 'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+  background: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+  margin-right: 14px;
+  text-decoration: none;
+}
+
+/* ===== one orchestrated page-load entrance (not per-card) ===== */
+@media (prefers-reduced-motion: no-preference) {
+  .site-header { animation: enter-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .site-main   { animation: enter-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
+  .bottom-nav  { animation: enter-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+}
+@keyframes enter-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes enter-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== search: glowing focus ring instead of flat border ===== */
+.search-pill {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.search-pill:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 8px 24px -8px var(--glow);
+  background: var(--bg-elevated-2);
+}
+.search-icon svg { transition: color 0.25s ease; }
+.search-pill:focus-within .search-icon { color: var(--accent); }
+
+/* ===== cards: unified zoom + glow instead of flat lift ===== */
+.card, .feed-card {
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card img { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 12px 32px -12px var(--glow);
+    transform: translateY(-4px);
+  }
+  .card:hover img { transform: scale(1.06); }
+  .feed-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 26px -14px var(--glow);
+  }
+}
+.card img { overflow: hidden; }
+
+/* ===== bottom nav: glowing active indicator, smooth color shift ===== */
+.nav-item {
+  position: relative;
+  transition: color 0.3s ease;
+}
+.nav-icon svg { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nav-item.active .nav-icon svg { transform: translateY(-1px) scale(1.08); }
+
+/* ===== links/buttons inside content: quiet, consistent hover ===== */
+.nav-btn, .voice-btn {
+  transition: border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+@media (hover: hover) {
+  .nav-btn:hover, .voice-btn:hover { box-shadow: 0 0 0 1px var(--accent) inset; }
+}
+
+/* ===== custom scrollbar to match the palette ===== */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated-2);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* восстановить исходное быстрое поведение постеров в сезонных новинках */
+.seasons-scroll .card {
+  transition: transform 0.15s ease, border-color 0.3s ease;
+}
+.seasons-scroll .card img { transition: none; }
+@media (hover: hover) {
+  .seasons-scroll .card:hover {
+    transform: translateY(-2px);
+    box-shadow: none;
+  }
+  .seasons-scroll .card:hover img { transform: none; }
+}
+
+/* без подсветки и зума для "Сезонные новинки" (id="season") */
+#season .card,
+#season .card:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border);
+}
+#season .card img,
+#season .card:hover img {
+  transform: none;
+}
+
+/* Сезонные новинки: лёгкий подъём при наведении (без zoom/glow) */
+#season .card {
+  transition: transform 0.25s ease;
+}
+#season .card:hover {
+  transform: translateY(-6px);
+}
