@@ -418,6 +418,16 @@ if (document.readyState === "loading") {
     nameEl.className = 'comment-author';
     nameEl.textContent = comment.user_name || 'Пользователь';
     meta.appendChild(nameEl);
+    if (comment.is_dev) {
+      const badge = document.createElement('span');
+      badge.className = 'dev-badge';
+      badge.tabIndex = 0;
+      badge.innerHTML = '<svg class="dev-badge-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z" fill="url(#dev-badge-grad)"/><text x="12" y="15" font-size="7" font-family="monospace" font-weight="bold" fill="#fff" text-anchor="middle">&lt;/&gt;</text></svg><span class="dev-badge-tooltip"></span>';
+      badge.querySelector('.dev-badge-tooltip').textContent = (comment.user_id === 1)
+        ? 'lik0i — автор VastAnime. Этот бейдж — просто напоминание, с чего всё начиналось \ud83d\udee0\ufe0f'
+        : 'От lik0i — спасибо за тестирование!';
+      meta.appendChild(badge);
+    }
 
     const dateEl = document.createElement('span');
     dateEl.className = 'comment-date';
