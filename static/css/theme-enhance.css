@@ -215,6 +215,6 @@ body.is-home .site-main {
 @media (min-width: 993px) {
   .comment-name-row .dev-badge {
     position: relative;
-    top: 3px;
+    top: 8px;
   }
 }
