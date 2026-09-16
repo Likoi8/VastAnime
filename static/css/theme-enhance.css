@@ -217,3 +217,10 @@ body.is-home .site-main {
     margin-top: 20px;
   }
 }
+\n
+
+/* Чуть меньше значок именно в комментариях */
+.comment-name-row .dev-badge-icon {
+  width: 1.05em;
+  height: 1.05em;
+}
