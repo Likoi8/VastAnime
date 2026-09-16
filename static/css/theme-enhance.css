@@ -297,3 +297,24 @@ body.is-home .site-main {
   color: inherit;
   text-decoration: underline;
 }
+.index-intro {
+  max-width: 720px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  text-align: center;
+}
+.index-intro h1 {
+  font-size: 1.3rem;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.index-intro p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+@media (max-width: 992px) {
+  .index-intro h1 { font-size: 1.1rem; }
+  .index-intro p { font-size: 0.85rem; }
+}
