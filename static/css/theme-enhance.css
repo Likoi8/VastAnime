@@ -157,13 +157,13 @@ body.is-home .site-main {
   position: relative;
   display: inline-flex;
   align-items: center;
-  vertical-align: middle;
-  margin-left: 4px;
+  vertical-align: -0.15em;
+  margin-left: 2px;
   cursor: pointer;
 }
 .dev-badge-icon {
-  width: 16px;
-  height: 16px;
+  width: 1.6em;
+  height: 1.6em;
   flex-shrink: 0;
 }
 .dev-badge-tooltip {
