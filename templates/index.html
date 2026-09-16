@@ -17,25 +17,16 @@
   <button type="button" class="index-tab active" data-tab="anime">Аниме</button>
   <button type="button" class="index-tab" data-tab="donghua">Дунхуа</button>
 </div>
-{% if hero_item %}
-<section class="hero-banner" style="background-image: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%), url('{{ hero_item.image }}');">
-  <div class="hero-banner-content">
-    <h1 class="hero-banner-title">{{ hero_item.title }}</h1>
-    {% if hero_item.description %}<p class="hero-banner-desc">{{ hero_item.description }}</p>{% endif %}
-    <a class="hero-banner-btn" href="/anime/{{ hero_item.id }}">Смотреть</a>
-  </div>
-</section>
-{% endif %}
-<section id="feed-anime" class="feed-row">
-  {% for item in rest_items %}
-  <a class="feed-row-card" href="/anime/{{ item.id }}">
-    <div class="feed-row-poster">
-      <img src="{{ item.image }}" alt="{{ item.title }}">
-      {% if item.score %}<span class="feed-row-rating">★ {{ item.score }}</span>{% endif %}
-    </div>
-    <div class="feed-row-title">{{ item.title }}</div>
-    <div class="feed-row-meta">
-      {% if item.episodes_total %}{{ item.episodes_total }} эп{% endif %}
+<section id="feed-anime" class="feed">
+  {% for item in updates %}
+  <a class="feed-card" href="/anime/{{ item.id }}">
+    <img src="{{ item.image }}" alt="{{ item.title }}">
+    <div class="feed-card-body">
+      <div class="feed-card-title">{{ item.title }}</div>
+      <div class="feed-card-meta">
+        {% if item.episodes_total %}{{ item.episodes_total }} эп{% endif %}{% if item.score %} · {{ item.score }} ★{% endif %}
+      </div>
+      {% if item.description %}<div class="feed-card-desc">{{ item.description }}</div>{% endif %}
     </div>
   </a>
   {% endfor %}
