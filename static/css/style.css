@@ -593,11 +593,16 @@ a, button {
 }
 @media (min-width: 993px) {
   .seasons-scroll .card {
-    flex: 0 0 210px;
+    flex: 0 0 180px;
   }
 }
 .seasons-scroll--compact .card {
   flex: 0 0 120px;
+}
+@media (min-width: 993px) {
+  .seasons-scroll--compact .card {
+    flex: 0 0 180px;
+  }
 }
 .seasons-scroll--compact .card-title {
   font-size: 12px;
