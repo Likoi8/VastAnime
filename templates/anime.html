@@ -414,10 +414,13 @@ if (document.readyState === "loading") {
     const meta = document.createElement('div');
     meta.className = 'comment-meta';
 
+    const nameRow = document.createElement('div');
+    nameRow.className = 'comment-name-row';
+
     const nameEl = document.createElement('span');
     nameEl.className = 'comment-author';
     nameEl.textContent = comment.user_name || 'Пользователь';
-    meta.appendChild(nameEl);
+    nameRow.appendChild(nameEl);
     if (comment.is_dev) {
       const badge = document.createElement('span');
       badge.className = 'dev-badge';
@@ -426,8 +429,9 @@ if (document.readyState === "loading") {
       badge.querySelector('.dev-badge-tooltip').textContent = (comment.user_id === 1)
         ? 'lik0i – автор VastAnime'
         : 'От lik0i — спасибо за тестирование!';
-      meta.appendChild(badge);
+      nameRow.appendChild(badge);
     }
+    meta.appendChild(nameRow);
 
     const dateEl = document.createElement('span');
     dateEl.className = 'comment-date';

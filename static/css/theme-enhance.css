@@ -209,3 +209,12 @@ body.is-home .site-main {
 .profile-name .dev-badge {
   position: static;
 }
+\n
+
+/* Небольшой сдвиг бейджа вниз в комментариях, только на ПК */
+@media (min-width: 993px) {
+  .comment-name-row .dev-badge {
+    position: relative;
+    top: 3px;
+  }
+}
