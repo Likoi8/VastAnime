@@ -121,6 +121,9 @@ async def profile_page(request):
             joined_display = f"{dt.day} {months[dt.month - 1]} {dt.year}"
         except ValueError:
             joined_display = full_user["created_at"]
+    if full_user:
+        created_at = full_user.get("created_at")
+        full_user["is_dev"] = bool(created_at) and created_at < "2026-11-01"
     comment_count = await db.count_comments(user["id"])
     return aiohttp_jinja2.render_template(
         "profile.html", request,
@@ -842,6 +845,10 @@ async def js_version_processor(request):
 
 async def user_context_processor(request):
     user = await auth.current_user(request)
+    if user:
+        full_user = await db.get_user_by_id(user["id"])
+        created_at = full_user.get("created_at") if full_user else None
+        user["is_dev"] = bool(created_at) and created_at < "2026-11-01"
     return {"current_user": user}
 
 
