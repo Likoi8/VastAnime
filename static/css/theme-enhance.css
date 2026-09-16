@@ -45,7 +45,6 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .site-header { animation: enter-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
   .site-main   { animation: enter-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
-  .bottom-nav  { animation: enter-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
 }
 @keyframes enter-down {
   from { transform: translateY(-10px); }
