@@ -982,10 +982,6 @@ async def api_stream_direct(request):
         return web.json_response({"error": str(e)}, status=500)
 
 
-def create_app():
-    app = web.Application(middlewares=[error_middleware])
-    aiohttp_session.setup(app, EncryptedCookieStorage(config.get_session_secret()))
-    app.middlewares.append(visit_middleware)
 def cache_img_filter(url):
     from urllib.parse import quote
     if not url or not str(url).startswith("http"):
@@ -993,6 +989,10 @@ def cache_img_filter(url):
     return "/img/" + quote(url, safe="")
 
 
+def create_app():
+    app = web.Application(middlewares=[error_middleware])
+    aiohttp_session.setup(app, EncryptedCookieStorage(config.get_session_secret()))
+    app.middlewares.append(visit_middleware)
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader(os.path.join(BASE_DIR, "templates")),
