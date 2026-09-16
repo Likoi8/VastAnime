@@ -214,7 +214,6 @@ body.is-home .site-main {
 /* Небольшой сдвиг бейджа вниз в комментариях, только на ПК */
 @media (min-width: 993px) {
   .comment-name-row .dev-badge {
-    position: relative;
-    top: 8px;
+    margin-top: 20px;
   }
 }
