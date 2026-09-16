@@ -224,3 +224,71 @@ body.is-home .site-main {
   width: 1.05em;
   height: 1.05em;
 }
+
+/* Страница скачивания приложения */
+.download-page {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 16px;
+  text-align: center;
+}
+.download-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.download-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.download-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.download-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--card-bg, rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.08);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.download-option-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+.download-option-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.download-notice {
+  margin-top: 20px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  display: inline-block;
+}
+
+/* Ссылка на скачивание в профиле */
+.profile-download-link {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  max-width: 220px;
+  z-index: 10;
+}
+.profile-download-link a {
+  color: inherit;
+  text-decoration: underline;
+}

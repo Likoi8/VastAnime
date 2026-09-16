@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Скачать приложение — VastAnime{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<section class="download-page">
+  <h2 class="download-title">Скачать приложение VastAnime</h2>
+  <p class="download-subtitle">Выберите платформу</p>
+
+  <div class="download-options">
+    <button type="button" class="download-option" data-platform="pc">
+      <span class="download-option-title">Windows / ПК</span>
+      <span class="download-option-desc">Приложение для компьютера</span>
+    </button>
+
+    <a href="/static/downloads/vastanime.apk" download class="download-option" data-platform="android">
+      <span class="download-option-title">Android</span>
+      <span class="download-option-desc">Бета-версия (.apk)</span>
+    </a>
+
+    <button type="button" class="download-option" data-platform="debian">
+      <span class="download-option-title">Debian / Linux</span>
+      <span class="download-option-desc">Сборка для Linux</span>
+    </button>
+  </div>
+
+  <div id="download-notice" class="download-notice" style="display:none;">Ещё в разработке</div>
+</section>
+
+<script>
+document.querySelectorAll('.download-option[data-platform="pc"], .download-option[data-platform="debian"]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var notice = document.getElementById('download-notice');
+    notice.style.display = 'block';
+    setTimeout(function () { notice.style.display = 'none'; }, 2500);
+  });
+});
+</script>
+{% endblock %}

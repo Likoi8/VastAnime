@@ -103,6 +103,8 @@ async def index(request):
 
 async def bookmarks_page(request):
     return aiohttp_jinja2.render_template("bookmarks.html", request, {})
+async def download_page(request):
+    return aiohttp_jinja2.render_template("download.html", request, {})
 
 
 async def profile_page(request):
@@ -1060,6 +1062,7 @@ def create_app():
     app.router.add_get("/api/updates", api_updates)
     app.router.add_get("/bookmarks", bookmarks_page)
     app.router.add_get("/profile", profile_page)
+    app.router.add_get("/download", download_page)
     app.router.add_get("/api/search", api_search)
     app.router.add_get("/api/discover", api_discover)
     app.router.add_get("/api/anime/{anime_id}", api_anime_info)
