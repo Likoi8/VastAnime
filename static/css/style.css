@@ -591,6 +591,11 @@ a, button {
   flex: 0 0 165px;
   scroll-snap-align: start;
 }
+@media (min-width: 993px) {
+  .seasons-scroll .card {
+    flex: 0 0 210px;
+  }
+}
 .seasons-scroll--compact .card {
   flex: 0 0 120px;
 }
