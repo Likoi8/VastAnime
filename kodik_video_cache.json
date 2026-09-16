@@ -281,11 +281,11 @@
   },
   "20": {
     "has_video": true,
-    "checked_at_ts": 1787587873.2122638
+    "checked_at_ts": 1789588571.9146135
   },
   "54688": {
     "has_video": false,
-    "checked_at_ts": 1788688620.3656368
+    "checked_at_ts": 1789588562.557882
   },
   "10075": {
     "has_video": true,
@@ -309,7 +309,7 @@
   },
   "12979": {
     "has_video": true,
-    "checked_at_ts": 1788688621.3346043
+    "checked_at_ts": 1789588563.61651
   },
   "16870": {
     "has_video": true,
@@ -337,7 +337,7 @@
   },
   "1735": {
     "has_video": true,
-    "checked_at_ts": 1788688621.8419905
+    "checked_at_ts": 1789588564.1112037
   },
   "51678": {
     "has_video": true,
@@ -2621,11 +2621,11 @@
   },
   "54687": {
     "has_video": false,
-    "checked_at_ts": 1788688620.5794957
+    "checked_at_ts": 1789588562.8700898
   },
   "34566": {
     "has_video": true,
-    "checked_at_ts": 1788688621.1580071
+    "checked_at_ts": 1789588563.439368
   },
   "59349": {
     "has_video": true,
@@ -3118,5 +3118,77 @@
   "2248": {
     "has_video": true,
     "checked_at_ts": 1789588553.9191034
+  },
+  "1604": {
+    "has_video": true,
+    "checked_at_ts": 1789588626.3608713
+  },
+  "33798": {
+    "has_video": false,
+    "checked_at_ts": 1789588626.450842
+  },
+  "57742": {
+    "has_video": false,
+    "checked_at_ts": 1789588626.7419362
+  },
+  "8532": {
+    "has_video": false,
+    "checked_at_ts": 1789588627.0294006
+  },
+  "9023": {
+    "has_video": false,
+    "checked_at_ts": 1789588627.3433928
+  },
+  "49550": {
+    "has_video": false,
+    "checked_at_ts": 1789588627.6314352
+  },
+  "49199": {
+    "has_video": false,
+    "checked_at_ts": 1789588627.9604185
+  },
+  "55044": {
+    "has_video": false,
+    "checked_at_ts": 1789588628.2387097
+  },
+  "40665": {
+    "has_video": false,
+    "checked_at_ts": 1789588628.546343
+  },
+  "40239": {
+    "has_video": false,
+    "checked_at_ts": 1789588628.821356
+  },
+  "33740": {
+    "has_video": false,
+    "checked_at_ts": 1789588629.1468847
+  },
+  "29837": {
+    "has_video": false,
+    "checked_at_ts": 1789588629.4403474
+  },
+  "44276": {
+    "has_video": true,
+    "checked_at_ts": 1789588629.8707595
+  },
+  "5552": {
+    "has_video": false,
+    "checked_at_ts": 1789588630.053751
+  },
+  "14347": {
+    "has_video": true,
+    "checked_at_ts": 1789588625.6702318
+  },
+  "6768": {
+    "has_video": true,
+    "checked_at_ts": 1789588625.9562454
+  },
+  "2904": {
+    "has_video": true,
+    "checked_at_ts": 1789588646.3152246
+  },
+  "1575": {
+    "has_video": true,
+    "checked_at_ts": 1789588646.6202266
   }
 }
