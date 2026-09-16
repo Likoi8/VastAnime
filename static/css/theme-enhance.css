@@ -162,8 +162,8 @@ body.is-home .site-main {
   cursor: pointer;
 }
 .dev-badge-icon {
-  width: 1.6em;
-  height: 1.6em;
+  width: 1.3em;
+  height: 1.3em;
   flex-shrink: 0;
 }
 .dev-badge-tooltip {
