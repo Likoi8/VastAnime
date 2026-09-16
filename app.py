@@ -989,6 +989,48 @@ def cache_img_filter(url):
     return "/img/" + quote(url, safe="")
 
 
+def cache_img_filter(url):
+    from urllib.parse import quote
+    if not url or not str(url).startswith("http"):
+        return url
+    return "/img/" + quote(url, safe="")
+
+
+async def img_proxy(request):
+    import hashlib
+    from urllib.parse import unquote
+    encoded = request.match_info["encoded"]
+    original_url = unquote(encoded)
+    if not original_url.startswith("http"):
+        return web.Response(status=400, text="bad url")
+    cache_dir = os.path.join(BASE_DIR, "static", "img_cache")
+    os.makedirs(cache_dir, exist_ok=True)
+    ext = os.path.splitext(original_url.split("?")[0])[1]
+    if ext.lower() not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+        ext = ".jpg"
+    filename = hashlib.sha256(original_url.encode()).hexdigest() + ext
+    filepath = os.path.join(cache_dir, filename)
+    if not os.path.exists(filepath):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(original_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                    if resp.status != 200:
+                        return web.Response(status=502, text="upstream error")
+                    data = await resp.read()
+            with open(filepath, "wb") as f:
+                f.write(data)
+        except Exception:
+            return web.Response(status=502, text="fetch failed")
+    content_type = {
+        ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
+    }.get(ext.lower(), "image/jpeg")
+    return web.FileResponse(
+        filepath,
+        headers={"Cache-Control": "public, max-age=2592000", "Content-Type": content_type},
+    )
+
+
 def create_app():
     app = web.Application(middlewares=[error_middleware])
     aiohttp_session.setup(app, EncryptedCookieStorage(config.get_session_secret()))
@@ -1002,47 +1044,6 @@ def create_app():
     app.on_startup.append(_init_db)
     app.on_startup.append(_start_cache_warmer)
     app.on_cleanup.append(_stop_cache_warmer)
-
-async def img_proxy(request):
-    import hashlib
-    from urllib.parse import unquote
-    encoded = request.match_info["encoded"]
-    original_url = unquote(encoded)
-    if not original_url.startswith("http"):
-        return web.Response(status=400, text="bad url")
-
-    cache_dir = os.path.join(BASE_DIR, "static", "img_cache")
-    os.makedirs(cache_dir, exist_ok=True)
-
-    ext = os.path.splitext(original_url.split("?")[0])[1]
-    if ext.lower() not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
-        ext = ".jpg"
-    filename = hashlib.sha256(original_url.encode()).hexdigest() + ext
-    filepath = os.path.join(cache_dir, filename)
-
-    if not os.path.exists(filepath):
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(original_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
-                    if resp.status != 200:
-                        return web.Response(status=502, text="upstream error")
-                    data = await resp.read()
-            with open(filepath, "wb") as f:
-                f.write(data)
-        except Exception:
-            return web.Response(status=502, text="fetch failed")
-
-    content_type = {
-        ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-        ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
-    }.get(ext.lower(), "image/jpeg")
-
-    return web.FileResponse(
-        filepath,
-        headers={"Cache-Control": "public, max-age=2592000", "Content-Type": content_type},
-    )
-
-
     app.router.add_get("/", index)
     app.router.add_get("/discover", discover)
     app.router.add_get("/api/updates", api_updates)
@@ -1060,14 +1061,12 @@ async def img_proxy(request):
     app.router.add_get("/api/stream", api_stream)
     app.router.add_get("/api/stream-direct", api_stream_direct)
     app.router.add_post("/api/log-crash", api_log_crash)
-
     app.router.add_get("/auth/google", auth.login)
     app.router.add_get("/auth/google/callback", auth.callback)
     app.router.add_get("/auth/logout", auth.logout)
     app.router.add_post("/api/auth/verify-code", auth.verify_code)
     app.router.add_post("/api/auth/resend-code", auth.resend_code)
     app.router.add_get("/api/auth/pending-email", auth.pending_email)
-
     app.router.add_get("/api/profile", api_get_profile)
     app.router.add_post("/api/watch-time", api_add_watch_time)
     app.router.add_get("/api/bookmarks", api_get_bookmarks)
@@ -1078,14 +1077,12 @@ async def img_proxy(request):
     app.router.add_post("/api/anime/{anime_id}/rating", api_set_anime_rating)
     app.router.add_delete("/api/anime/{anime_id}/rating", api_delete_anime_rating)
     app.router.add_get("/api/anime/{anime_id}/list-stats", api_get_anime_list_stats)
-
     app.router.add_get("/api/comments/{anime_id}", api_get_comments)
     app.router.add_post("/api/comments/{anime_id}", api_add_comment)
     app.router.add_put("/api/comments/item/{comment_id}", api_update_comment)
     app.router.add_delete("/api/comments/item/{comment_id}", api_delete_comment)
     app.router.add_post("/api/comments/item/{comment_id}/like", api_like_comment)
     app.router.add_delete("/api/comments/item/{comment_id}/like", api_unlike_comment)
-
     app.router.add_get("/kodik.txt", kodik_verify)
     app.router.add_get("/robots.txt", robots_txt)
     app.router.add_get("/sitemap.xml", sitemap_xml)
