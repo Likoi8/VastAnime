@@ -119,6 +119,7 @@ async def current_user(request):
         "id": user_id,
         "name": session.get("user_name"),
         "avatar": session.get("user_avatar"),
+        "is_dev": session.get("user_is_dev", False),
     }
 
 
@@ -153,6 +154,10 @@ async def verify_code(request):
     session["user_name"] = session.pop("pending_user_name", None)
     session["user_avatar"] = session.pop("pending_user_avatar", None)
     session.pop("pending_user_id", None)
+
+    full_user = await db.get_user_by_id(pending_id)
+    created_at = full_user.get("created_at") if full_user else None
+    session["user_is_dev"] = bool(created_at) and created_at < "2026-11-01"
 
     return web.json_response({"success": True})
 
