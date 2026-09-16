@@ -199,3 +199,13 @@ body.is-home .site-main {
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
+\n
+
+/* Отступ под ником в профиле + центрирование тултипа бейджа под всей строкой ника */
+.profile-name {
+  position: relative;
+  margin-bottom: 14px;
+}
+.profile-name .dev-badge {
+  position: static;
+}
