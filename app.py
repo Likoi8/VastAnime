@@ -95,11 +95,9 @@ async def index(request):
     # Вкладки "Аниме"/"Дунхуа" временно отключены на главной (по решению пользователя),
     # классификация выше оставлена нетронутой на случай возврата к задаче.
     # Раньше: {"updates": anime_items, "donghua_updates": donghua_items}
-    hero_item = anime_items[0] if anime_items else None
-    rest_items = anime_items[1:] if anime_items else []
     return aiohttp_jinja2.render_template(
         "index.html", request,
-        {"updates": anime_items, "donghua_updates": [], "hero_item": hero_item, "rest_items": rest_items},
+        {"updates": anime_items, "donghua_updates": []},
     )
 
 
