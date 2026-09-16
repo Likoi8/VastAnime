@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Серия {{ episode }} — VastAnime{% endblock %}
+{% block canonical %}https://vastanime.ru/anime/{{ anime_id }}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
 {% block content %}
 <section class="watch-section" data-anime-id="{{ anime_id }}" data-episode="{{ episode }}">
   <div class="player-wrap">
