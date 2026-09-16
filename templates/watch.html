@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Серия {{ episode }} — VastAnime{% endblock %}
+{% block content %}
+<section class="watch-section" data-anime-id="{{ anime_id }}" data-episode="{{ episode }}">
+  <div class="player-wrap">
+    <video id="player" controls playsinline></video>
+    <iframe id="iframe-player" allowfullscreen style="display:none;"></iframe>
+    <p id="player-status" class="player-status"></p>
+  </div>
+
+  <div class="episode-nav">
+    <a class="nav-btn" href="/watch/{{ anime_id }}/{{ episode - 1 }}" {% if episode <= 1 %}aria-disabled="true"{% endif %}>← Пред. серия</a>
+    <span>Серия {{ episode }}</span>
+    <a class="nav-btn" href="/watch/{{ anime_id }}/{{ episode + 1 }}">След. серия →</a>
+  </div>
+
+  <div class="voices-list">
+    <div class="voices-header">
+      <h2>Озвучка</h2>
+      <button type="button" id="voices-toggle-btn" class="voices-toggle-btn" aria-expanded="false">
+        <span id="voices-toggle-label">Показать все</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="voices-grid-wrap" id="voices-grid-wrap">
+      <div class="voices-grid">
+        {% for v in voices %}
+        <button class="voice-btn"
+          data-player="{{ v.player }}"
+          data-translation-id="{{ v.translation_id }}"
+          data-label="{{ v.label }}"
+          data-embed="{{ v.embed }}"
+          data-cvh-id="{{ v.embed.split('/')[4] if v.player == 'CVH' else '' }}">
+          {{ v.label }}
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.7.4/dash.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script src="/static/js/player.js?v={{ js_versions["player.js"] }}"></script>
+<script>
+(function () {
+  const toggleBtn = document.getElementById('voices-toggle-btn');
+  const wrap = document.getElementById('voices-grid-wrap');
+  const label = document.getElementById('voices-toggle-label');
+  if (!toggleBtn || !wrap || !label) return;
+  toggleBtn.addEventListener('click', function () {
+    const expanded = wrap.classList.toggle('expanded');
+    toggleBtn.classList.toggle('expanded', expanded);
+    toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    label.textContent = expanded ? 'Свернуть' : 'Показать все';
+  });
+})();
+</script>
+{% endblock %}

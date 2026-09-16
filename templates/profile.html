@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Профиль — VastAnime{% endblock %}
+{% block nav_profile_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<section class="profile-page">
+  {% if profile_user.avatar %}
+  <img class="profile-avatar" src="{{ profile_user.avatar }}" alt="{{ profile_user.name }}">
+  {% endif %}
+  <h2 class="profile-name">{{ profile_user.name }}</h2>
+  <p class="profile-email">{{ profile_user.email }}</p>
+  {% if joined_display %}
+  <p class="profile-meta">С нами с {{ joined_display }}</p>
+  {% endif %}
+  <p class="profile-meta">Закладок: {{ bookmark_count }}</p>
+  <p class="profile-meta">Комментариев: {{ comment_count }}</p>
+  <a href="/auth/logout" class="profile-logout-btn">Выйти из аккаунта</a>
+</section>
+{% endblock %}

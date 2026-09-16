@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Закладки — VastAnime{% endblock %}
+{% block nav_bookmarks_active %}active{% endblock %}
+{% block header %}
+<header class="site-header">
+  <form class="search-pill" onsubmit="return false;">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </span>
+    <input type="text" id="bookmarks-search" placeholder="Поиск в закладках..." autocomplete="off">
+  </form>
+</header>
+{% endblock %}
+{% block content %}
+{% if not current_user %}
+<p class="status">Чтобы пользоваться закладками, нужно <a href="/auth/google">авторизоваться через Google</a>.</p>
+{% else %}
+<section id="bookmarks-feed" class="feed"></section>
+<p id="bookmarks-loading" class="status">Загрузка...</p>
+<p id="bookmarks-empty" class="status" style="display:none;">Пока нет закладок</p>
+<p id="bookmarks-no-results" class="status" style="display:none;">Ничего не найдено</p>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if current_user %}
+<script>
+(function () {
+  const feed = document.getElementById('bookmarks-feed');
+  const loading = document.getElementById('bookmarks-loading');
+  const empty = document.getElementById('bookmarks-empty');
+  const noResults = document.getElementById('bookmarks-no-results');
+  const searchInput = document.getElementById('bookmarks-search');
+  let allBookmarks = [];
+
+  function renderCard(item) {
+    const card = document.createElement('a');
+    card.className = 'feed-card';
+    card.href = '/anime/' + item.id;
+
+    if (item.image) {
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.title || '';
+      card.appendChild(img);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'feed-card-body';
+
+    const title = document.createElement('div');
+    title.className = 'feed-card-title';
+    title.textContent = item.title || '';
+    body.appendChild(title);
+
+    const meta = document.createElement('div');
+    meta.className = 'feed-card-meta';
+    const parts = [];
+    if (item.episodes) parts.push(item.episodes + ' эп.');
+    if (item.score) parts.push('★ ' + item.score);
+    meta.textContent = parts.join(' · ');
+    body.appendChild(meta);
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function render(list) {
+    feed.innerHTML = '';
+    list.forEach(function (item) {
+      feed.appendChild(renderCard(item));
+    });
+  }
+
+  getBookmarks().then(function (result) {
+    loading.style.display = 'none';
+    if (!result.authenticated) {
+      window.location.href = '/auth/google';
+      return;
+    }
+    allBookmarks = result.items;
+    if (allBookmarks.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    render(allBookmarks);
+
+    searchInput.addEventListener('input', function () {
+      const q = searchInput.value.trim().toLowerCase();
+      const filtered = q
+        ? allBookmarks.filter(function (item) {
+            return (item.title || '').toLowerCase().includes(q);
+          })
+        : allBookmarks;
+
+      render(filtered);
+      noResults.style.display = (q && filtered.length === 0) ? 'block' : 'none';
+    });
+  }).catch(function (err) {
+    loading.textContent = 'Не удалось загрузить закладки. Попробуйте обновить страницу.';
+    console.error('bookmarks load error', err);
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

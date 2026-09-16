@@ -1,0 +1,17 @@
+config.py
+*.bak
+*.bak_*
+*.pre_manual_patch
+*.before_patch
+*.broken_*
+__pycache__/
+*.pyc
+vastanime.db
+cache_backups/
+crash_logs.txt
+session_secret.key
+venv/
+*.apk
+.private_backup/
+*.bak*
+*bak*

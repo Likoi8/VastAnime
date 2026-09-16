@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ status }} - {{ title }}{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<section class="error-404">
+  <div class="error-404-text">
+    <h1>{{ status }} - {{ title }}</h1>
+    <p class="error-404-sub">{{ subtitle }}</p>
+    <p class="error-404-desc">{{ description }}</p>
+    <div class="error-404-actions">
+      <a href="/" class="error-404-btn error-404-btn-accent">Главная страница</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

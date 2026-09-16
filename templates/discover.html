@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Обзор — VastAnime{% endblock %}
+{% block nav_discover_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<section class="quick-actions">
+  <a href="/discover#season" class="quick-btn">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.545 3.75 3.75 0 0 1 3.255 3.717Z" clip-rule="evenodd"/></svg>
+    <span>Сезонное</span>
+  </a>
+  <a href="/discover#schedule" class="quick-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>Расписание</span>
+  </a>
+</section>
+
+<section id="season" class="discover-section">
+  <h2>Сезонные новинки</h2>
+  <div class="grid">
+    {% for item in season %}
+    <a class="card" href="/anime/{{ item.id }}">
+      {% if item.image %}<img src="{{ item.image }}" alt="{{ item.title }}">{% endif %}
+      <span class="card-title">{{ item.title }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="schedule" class="discover-section">
+  <h2>Расписание выхода серий</h2>
+  {% for day, items in schedule.items() %}
+  <div class="schedule-day">
+    <h3>{{ day }}</h3>
+    <div class="feed">
+      {% for ep in items %}
+      <a class="feed-card" href="{% if ep.id %}/anime/{{ ep.id }}{% else %}#{% endif %}">
+        <img src="{{ ep.image }}" alt="{{ ep.title }}">
+        <div class="feed-card-body">
+          <div class="feed-card-title">{{ ep.title }}</div>
+          <div class="feed-card-meta">эп. {{ ep.episode }} · {{ ep.time }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

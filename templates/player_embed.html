@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #000; width: 100%; height: 100%; overflow: hidden; }
+  .player-wrap { position: relative; width: 100%; height: 100vh; background: #000; }
+  #player { width: 100%; height: 100%; background: #000; }
+  #iframe-player { width: 100%; height: 100%; border: 0; }
+  .player-status { color: #fff; text-align: center; padding: 8px; font-family: sans-serif; font-size: 14px; }
+  .voices-list { display: none; }
+</style>
+</head>
+<body>
+<section class="watch-section" data-anime-id="{{ anime_id }}" data-episode="{{ episode }}">
+  <div class="player-wrap">
+    <video id="player" controls playsinline></video>
+    <iframe id="iframe-player" allowfullscreen style="display:none;"></iframe>
+    <p id="player-status" class="player-status"></p>
+  </div>
+  <div class="voices-list">
+    <button class="voice-btn"
+      data-player="{{ voice.player }}"
+      data-translation-id="{{ voice.translation_id }}"
+      data-label="{{ voice.label }}"
+      data-embed="{{ voice.embed }}"
+      data-cvh-id="{{ voice.embed.split('/')[4] if voice.player == 'CVH' else '' }}">
+      {{ voice.label }}
+    </button>
+  </div>
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.7.4/dash.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script src="/static/js/player.js?v={{ js_versions["player.js"] }}"></script>
+</body>
+</html>

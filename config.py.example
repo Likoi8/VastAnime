@@ -1,0 +1,42 @@
+import os
+
+GOOGLE_CLIENT_ID = "858119536059-fqf606pvl76ua7ep8ja0j24fe8o6pba2.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "YOUR_GOOGLE_CLIENT_SECRET"
+GOOGLE_REDIRECT_URI = "https://vastanime.ru/auth/google/callback"
+
+# Ключ для шифрования cookie-сессий. Генерируется один раз при первом деплое
+# и должен оставаться постоянным (иначе все сессии пользователей слетят
+# при каждом перезапуске сервиса).
+_SECRET_KEY_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "session_secret.key")
+
+def get_session_secret() -> str:
+    if os.path.exists(_SECRET_KEY_PATH):
+        with open(_SECRET_KEY_PATH, "rb") as f:
+            return f.read().decode("utf-8")
+    from cryptography.fernet import Fernet
+    key = Fernet.generate_key()
+    with open(_SECRET_KEY_PATH, "wb") as f:
+        f.write(key)
+    os.chmod(_SECRET_KEY_PATH, 0o600)
+    return key.decode("utf-8")
+
+
+# SMTP для отправки кодов подтверждения на почту
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "fifirka458@gmail.com"
+SMTP_PASSWORD = "YOUR_SMTP_PASSWORD"
+SMTP_FROM_NAME = "VastAnime"
+
+
+
+# SMTP для отправки кодов подтверждения на почту
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USER = "fifirka458@gmail.com"
+SMTP_PASSWORD = "YOUR_SMTP_PASSWORD"
+SMTP_FROM_NAME = "VastAnime"
+
+
+# Kodik API (официальный партнёрский доступ)
+KODIK_TOKEN = "YOUR_KODIK_TOKEN"

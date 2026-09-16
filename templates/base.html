@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}VastAnime{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}VastAnime — смотреть аниме онлайн бесплатно в хорошем качестве{% endblock %}">
+<link rel="canonical" href="{% block canonical %}https://vastanime.ru/{% endblock %}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VastAnime">
+<meta property="og:title" content="{% block og_title %}VastAnime{% endblock %}">
+<meta property="og:url" content="{% block og_url %}https://vastanime.ru/{% endblock %}">
+<link rel="stylesheet" href="/static/css/style.css?v={{ css_version }}">
+</head>
+<body>
+{% block sakura %}{% endblock %}
+{% block header %}
+<header class="site-header">
+  <form class="search-pill" action="/" method="get" id="header-search">
+    <span class="search-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </span>
+    <input type="text" name="q" placeholder="Поиск аниме..." autocomplete="off">
+  </form>
+</header>
+{% endblock %}
+<main class="site-main">
+{% block content %}{% endblock %}
+</main>
+<nav class="bottom-nav">
+  <a href="/" class="nav-item {% block nav_home_active %}{% endblock %}">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11.5 12 4l9 7.5"/>
+        <path d="M5.5 10v9.5a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4.5a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1V10"/>
+      </svg>
+    </span>
+    <span>Главная</span>
+  </a>
+  <a href="/discover" class="nav-item {% block nav_discover_active %}{% endblock %}">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/>
+      </svg>
+    </span>
+    <span>Обзор</span>
+  </a>
+  <a href="/bookmarks" class="nav-item {% block nav_bookmarks_active %}{% endblock %}">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/>
+      </svg>
+    </span>
+    <span>Закладки</span>
+  </a>
+  <a href="{{ '/profile' if current_user else '/auth/google' }}" class="nav-item {% block nav_profile_active %}{% endblock %}">
+    <span class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+      </svg>
+    </span>
+    <span>{{ current_user.name if current_user else 'Войти' }}</span>
+  </a>
+</nav>
+<div id="verify-modal" class="verify-modal-overlay" style="display:none;">
+  <div class="verify-modal">
+    <h3>Подтверждение входа</h3>
+    <p>Мы отправили код подтверждения на <span id="verify-email">почту</span></p>
+    <input type="text" id="verify-code-input" maxlength="6" inputmode="numeric" placeholder="000000" autocomplete="one-time-code">
+    <div id="verify-error" class="verify-error"></div>
+    <button id="verify-submit-btn">Подтвердить</button>
+    <button id="verify-resend-btn" type="button">Отправить код повторно</button>
+  </div>
+</div>
+<script src="/static/js/bookmarks.js?v={{ js_versions["bookmarks.js"] }}"></script>
+<script src="/static/js/main.js?v={{ js_versions["main.js"] }}"></script>
+<script src="/static/js/comments.js?v={{ js_versions["comments.js"] }}"></script>
+<script src="/static/js/verify.js?v={{ js_versions["verify.js"] }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

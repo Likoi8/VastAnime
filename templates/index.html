@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}VastAnime — смотреть аниме онлайн бесплатно{% endblock %}
+{% block meta_description %}VastAnime — смотреть аниме онлайн бесплатно в хорошем качестве. Новые серии, каталог тайтлов, донхуа.{% endblock %}
+{% block canonical %}https://vastanime.ru/{% endblock %}
+{% block og_title %}VastAnime — смотреть аниме онлайн{% endblock %}
+{% block og_url %}https://vastanime.ru/{% endblock %}
+{% block nav_home_active %}active{% endblock %}
+{% block sakura %}
+<div class="sakura-container" aria-hidden="true">
+  {% for i in range(15) %}
+  <span class="sakura-petal" style="left: {{ (i * 53 + 17) % 100 }}%; width: {{ 6 + (i % 4) }}px; height: {{ 6 + (i % 4) }}px; animation-duration: {{ 9 + (i * 7 % 6) }}s; animation-delay: {{ ((i * 1.1 + (i % 3) * 2.3) % 12) | round(1) }}s;"></span>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="index-tabs" style="display:none;">
+  <button type="button" class="index-tab active" data-tab="anime">Аниме</button>
+  <button type="button" class="index-tab" data-tab="donghua">Дунхуа</button>
+</div>
+<section id="feed-anime" class="feed">
+  {% for item in updates %}
+  <a class="feed-card" href="/anime/{{ item.id }}">
+    <img src="{{ item.image }}" alt="{{ item.title }}">
+    <div class="feed-card-body">
+      <div class="feed-card-title">{{ item.title }}</div>
+      <div class="feed-card-meta">
+        {% if item.episodes_total %}{{ item.episodes_total }} эп{% endif %}{% if item.score %} · {{ item.score }} ★{% endif %}
+      </div>
+      {% if item.description %}<div class="feed-card-desc">{{ item.description }}</div>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</section>
+<section id="feed-donghua" class="feed" style="display:none;">
+  {% for item in donghua_updates %}
+  <a class="feed-card" href="/anime/{{ item.id }}">
+    <img src="{{ item.image }}" alt="{{ item.title }}">
+    <div class="feed-card-body">
+      <div class="feed-card-title">{{ item.title }}</div>
+      <div class="feed-card-meta">
+        {% if item.episodes_total %}{{ item.episodes_total }} эп{% endif %}{% if item.score %} · {{ item.score }} ★{% endif %}
+      </div>
+      {% if item.description %}<div class="feed-card-desc">{{ item.description }}</div>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/search.js?v={{ js_versions["search.js"] }}"></script>
+<script>
+(function () {
+  var tabs = document.querySelectorAll(".index-tab");
+  var feeds = { anime: document.getElementById("feed-anime"), donghua: document.getElementById("feed-donghua") };
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      var target = tab.dataset.tab;
+      Object.keys(feeds).forEach(function (key) {
+        feeds[key].style.display = key === target ? "" : "none";
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}
