@@ -313,6 +313,7 @@ async def get_comments(anime_id: str, current_user_id: int | None = None) -> lis
             """
             SELECT c.id, c.parent_id, c.content, c.created_at, c.updated_at,
                    c.user_id, u.name AS user_name, u.avatar AS user_avatar,
+                   (u.created_at < '2026-11-01') AS is_dev,
                    (SELECT COUNT(*) FROM comment_likes cl WHERE cl.comment_id = c.id) AS like_count,
                    EXISTS(
                        SELECT 1 FROM comment_likes cl2
