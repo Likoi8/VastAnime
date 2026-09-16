@@ -824,11 +824,15 @@ async def error_middleware(request, handler):
 
 
 async def css_version_processor(request):
-    css_path = os.path.join(BASE_DIR, "static", "css", "style.css")
-    try:
-        version = int(os.path.getmtime(css_path))
-    except OSError:
-        version = 0
+    css_names = ("style.css", "theme-enhance.css")
+    versions = []
+    for name in css_names:
+        css_path = os.path.join(BASE_DIR, "static", "css", name)
+        try:
+            versions.append(int(os.path.getmtime(css_path)))
+        except OSError:
+            pass
+    version = max(versions) if versions else 0
     return {"css_version": version}
 
 
