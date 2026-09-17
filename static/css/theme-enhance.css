@@ -329,9 +329,7 @@ body.is-home .site-main {
   white-space: nowrap;
   border: 0;
 }
-/* фикс артефакта рендеринга при hover-подъёме карточек (сезонные новинки и др.) */
-.card {
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translateZ(0);
+/* Firefox: вернуть overflow:hidden для карточек сезонных новинок, чтобы не мигал артефакт скругления при hover */
+#season .card {
+  overflow: hidden;
 }
