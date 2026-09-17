@@ -150,10 +150,11 @@ body.is-home .site-main {
 
 /* Сезонные новинки: лёгкий подъём при наведении (без zoom/glow) */
 #season .card {
-  transition: transform 0.25s ease;
+  transition: none !important;
+  transform: none !important;
 }
 #season .card:hover {
-  transform: translateY(-6px);
+  transform: none !important;
 }
 
 /* Dev badge */
