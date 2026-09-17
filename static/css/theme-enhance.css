@@ -133,12 +133,14 @@ body.is-home .site-main {
 }
 
 /* без подсветки и зума для "Сезонные новинки" (id="season") */
-#season .card,
-#season .card:hover {
-  transform: none !important;
+#season .card {
   box-shadow: none !important;
   border-color: var(--border) !important;
-  transition: none !important;
+  transition: transform 0.25s ease !important;
+}
+#season .card:hover {
+  box-shadow: none !important;
+  border-color: var(--border) !important;
 }
 #season .card img,
 #season .card:hover img {
