@@ -533,21 +533,45 @@ async def get_schedule() -> dict:
     return data
 
 
+_SEASON_CACHE_TTL = 60 * 60 * 24  # 1 день — скользящее окно популярности за 7 дней пересчитывается раз в сутки
 async def get_season() -> list[dict]:
+    """Раздел "Сезонные новинки": топ по популярности (просмотры
+    за последние 7 дней из своей БД) + подмешанные свежие онгоинги
+    (по дате выхода серий с Shikimori), без дублей."""
     now = time.time()
-    if _season_cache["data"] is not None and (now - _season_cache["ts"]) < _DISCOVER_CACHE_TTL:
+    if _season_cache["data"] is not None and (now - _season_cache["ts"]) < _SEASON_CACHE_TTL:
         return _season_cache["data"]
-
-    def _run():
-        return _parser.get_anime_from_current_season()
-    data = await asyncio.to_thread(_run)
+    POPULAR_COUNT = 14
+    FRESH_COUNT = 6
+    popular_rows = await db.get_popular_anime_by_views(days=7, limit=POPULAR_COUNT)
+    popular_ids_bare = {row["anime_id"][2:] for row in popular_rows if row["anime_id"].startswith("sh")}
+    async def _fetch_popular_info(anime_id: str):
+        try:
+            info = await get_info(anime_id)
+            return {
+                "id": anime_id,
+                "title": info.get("title"),
+                "image": info.get("image"),
+                "rating": info.get("score"),
+                "year": info.get("year"),
+                "type": info.get("type"),
+                "status": info.get("status"),
+            }
+        except Exception:
+            return None
+    popular_infos = await asyncio.gather(
+        *(_fetch_popular_info(row["anime_id"]) for row in popular_rows)
+    )
+    popular_items = [item for item in popular_infos if item and item.get("title")]
+    fresh_items = await asyncio.to_thread(
+        shikimori_client.get_fresh_anime, FRESH_COUNT, popular_ids_bare
+    )
+    data = popular_items + fresh_items
     for item in data:
         item["image"] = _upscale_image(item.get("image"))
-
     _season_cache["data"] = data
     _season_cache["ts"] = now
     return data
-
 
 async def warm_caches_forever():
     """Держит кэши горячими, обновляя перед истечением TTL."""
