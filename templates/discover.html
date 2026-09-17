@@ -19,7 +19,9 @@
   <div class="grid">
     {% for item in season %}
     <a class="card" href="/anime/{{ item.id }}">
-      {% if item.image %}<img src="{{ item.image }}" alt="{{ item.title }}">{% endif %}
+      <div class="card-media">
+        {% if item.image %}<img src="{{ item.image }}" alt="{{ item.title }}">{% endif %}
+      </div>
       <span class="card-title">{{ item.title }}</span>
     </a>
     {% endfor %}
