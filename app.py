@@ -1046,7 +1046,14 @@ async def img_proxy(request):
 
 def create_app():
     app = web.Application(middlewares=[error_middleware])
-    aiohttp_session.setup(app, EncryptedCookieStorage(config.get_session_secret()))
+    aiohttp_session.setup(
+        app,
+        EncryptedCookieStorage(
+            config.get_session_secret(),
+            cookie_name="vastanime_session",
+            max_age=60 * 60 * 24 * 30,  # 30 дней
+        ),
+    )
     app.middlewares.append(visit_middleware)
     aiohttp_jinja2.setup(
         app,
