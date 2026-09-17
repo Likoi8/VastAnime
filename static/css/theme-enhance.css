@@ -133,11 +133,7 @@ body.is-home .site-main {
 }
 
 /* без подсветки и зума для "Сезонные новинки" (id="season") */
-/* Firefox: overflow:hidden + border-radius + transform на одном элементе даёт артефакты рендеринга,
-   поэтому клип убираем с .card и скругляем сразу img */
 #season .card {
-  overflow: visible !important;
-  border-radius: 0 !important;
   box-shadow: none !important;
   border-color: var(--border) !important;
   transition: transform 0.25s ease !important;
@@ -146,13 +142,10 @@ body.is-home .site-main {
   box-shadow: none !important;
   border-color: var(--border) !important;
 }
-#season .card img {
-  border-radius: var(--radius) var(--radius) 0 0;
-  transform: none !important;
-  transition: none !important;
-}
+#season .card img,
 #season .card:hover img {
   transform: none !important;
+  transition: none !important;
 }
 
 /* Сезонные новинки: лёгкий подъём при наведении (без zoom/glow) */
