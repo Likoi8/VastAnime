@@ -136,25 +136,23 @@ body.is-home .site-main {
 #season .card {
   box-shadow: none !important;
   border-color: var(--border) !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
   transition: transform 0.25s ease !important;
 }
 #season .card:hover {
   box-shadow: none !important;
   border-color: var(--border) !important;
+  transform: translateY(-6px) !important;
 }
-#season .card img,
-#season .card:hover img {
+#season .card-media {
+  overflow: hidden !important;
+  border-radius: var(--radius, 12px) !important;
+}
+#season .card-media img,
+#season .card:hover .card-media img {
   transform: none !important;
   transition: none !important;
-}
-
-/* Сезонные новинки: лёгкий подъём при наведении (без zoom/glow) */
-#season .card {
-  transition: none !important;
-  transform: none !important;
-}
-#season .card:hover {
-  transform: none !important;
 }
 
 /* Dev badge */
