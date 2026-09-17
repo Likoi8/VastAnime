@@ -172,6 +172,9 @@ def search_anime(query, limit=15):
     OG_FALLBACK_LIMIT = 8  # доп. HTTP-запрос только для первых N результатов
     fallback_used = 0
     for item in data:
+        kind_upper = (item.get("kind") or "").upper()
+        if kind_upper == "TV_SPECIAL":
+            continue
         image_url = _full_image_url(item.get("image"))
         if not image_url and fallback_used < OG_FALLBACK_LIMIT:
             image_url = _fetch_og_image(item.get("url"))
