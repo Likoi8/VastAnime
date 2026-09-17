@@ -18,7 +18,7 @@
   <h2>Сезонные новинки</h2>
   <div class="grid">
     {% for item in season %}
-    <a class="card" href="/anime/{{ item.id }}">
+    <a class="card card-season" href="/anime/{{ item.id }}">
       {% if item.image %}<img src="{{ item.image }}" alt="{{ item.title }}">{% endif %}
       <span class="card-title">{{ item.title }}</span>
     </a>

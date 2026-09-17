@@ -133,24 +133,24 @@ body.is-home .site-main {
 }
 
 /* без подсветки и зума для "Сезонные новинки" (id="season") */
-#season .card {
-  box-shadow: none !important;
-  border-color: var(--border) !important;
-  overflow: visible !important;
-  transition: transform 0.25s ease, border-color 0.3s ease !important;
+.card-season {
+  box-shadow: none;
+  border-color: var(--border);
+  overflow: visible;
+  transition: transform 0.25s ease, border-color 0.3s ease;
 }
-#season .card img {
-  border-radius: var(--radius) !important;
-  transition: none !important;
+.card-season img {
+  border-radius: var(--radius);
+  transition: none;
 }
 @media (hover: hover) {
-  #season .card:hover {
-    box-shadow: none !important;
-    border-color: var(--border) !important;
-    transform: translateY(-6px) !important;
+  .card-season:hover {
+    box-shadow: none;
+    border-color: var(--border);
+    transform: translateY(-6px);
   }
-  #season .card:hover img {
-    transform: none !important;
+  .card-season:hover img {
+    transform: none;
   }
 }
 
