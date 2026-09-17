@@ -151,6 +151,55 @@ def _fetch_og_image(shikimori_url):
     return None
 
 
+def get_fresh_anime(limit=20, exclude_ids=None):
+    """
+    Свежие онгоинги, отсортированные по дате выхода (недавно
+    вышедшие серии), через Shikimori API.
+    exclude_ids — множество id (без префикса 'sh') для исключения
+    дублей с уже отобранными популярными тайтлами.
+    Возвращает список dict в том же формате, что search_anime.
+    """
+    exclude_ids = exclude_ids or set()
+    url = f"{SHIKIMORI_BASE}/api/animes"
+    params = {
+        "status": "ongoing",
+        "order": "aired_on",
+        "limit": limit + len(exclude_ids),
+    }
+    try:
+        resp = requests.get(url, params=params, headers=HEADERS, timeout=8)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        print(f"[shikimori_client] get_fresh_anime failed: {e}", flush=True)
+        return []
+    results = []
+    for item in data:
+        if str(item.get("id")) in exclude_ids:
+            continue
+        kind_upper = (item.get("kind") or "").upper()
+        if kind_upper == "TV_SPECIAL":
+            continue
+        image_url = _full_image_url(item.get("image"))
+        aired_on = item.get("aired_on") or ""
+        year = None
+        if aired_on:
+            try:
+                year = int(aired_on.split("-")[0])
+            except (ValueError, IndexError):
+                year = None
+        results.append({
+            "id": f"sh{item.get('id')}",
+            "title": item.get("russian") or item.get("name"),
+            "image": image_url,
+            "rating": item.get("score"),
+            "year": year,
+            "type": (item.get("kind") or "").upper(),
+            "status": _map_status(item.get("status")),
+        })
+        if len(results) >= limit:
+            break
+    return results
 def search_anime(query, limit=15):
     """
     Поиск тайтлов по названию через Shikimori API.
