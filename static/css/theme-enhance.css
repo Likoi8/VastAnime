@@ -329,3 +329,9 @@ body.is-home .site-main {
   white-space: nowrap;
   border: 0;
 }
+/* фикс артефакта рендеринга при hover-подъёме карточек (сезонные новинки и др.) */
+.card {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
