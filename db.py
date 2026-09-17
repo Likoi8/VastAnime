@@ -380,7 +380,7 @@ async def log_visit(ip: str, session_id: str, path: str):
         await conn.commit()
 
 
-async def get_popular_anime_ids(days: int = 7, limit: int = 20) -> list[dict]:
+async def get_popular_anime_by_views(days: int = 7, limit: int = 20) -> list[dict]:
     """Возвращает [{anime_id, views}] по количеству уникальных
     сессий, заходивших на /anime/{id} за последние N дней,
     отсортировано по убыванию популярности."""
