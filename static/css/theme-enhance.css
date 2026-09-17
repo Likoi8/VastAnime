@@ -126,7 +126,7 @@ body.is-home .site-main {
 .seasons-scroll .card img { transition: none; }
 @media (hover: hover) {
   .seasons-scroll .card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-8px);
     box-shadow: none;
   }
   .seasons-scroll .card:hover img { transform: none; }
