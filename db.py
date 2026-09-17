@@ -380,6 +380,27 @@ async def log_visit(ip: str, session_id: str, path: str):
         await conn.commit()
 
 
+async def get_popular_anime_ids(days: int = 7, limit: int = 20) -> list[dict]:
+    """Возвращает [{anime_id, views}] по количеству уникальных
+    сессий, заходивших на /anime/{id} за последние N дней,
+    отсортировано по убыванию популярности."""
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cursor = await conn.execute(
+            """
+            SELECT
+                substr(path, 8) AS anime_id,
+                COUNT(DISTINCT session_id) AS views
+            FROM visits
+            WHERE path LIKE '/anime/%'
+              AND created_at >= datetime('now', ?)
+            GROUP BY anime_id
+            ORDER BY views DESC
+            LIMIT ?
+            """,
+            (f"-{days} days", limit),
+        )
+        rows = await cursor.fetchall()
+    return [{"anime_id": r[0], "views": r[1]} for r in rows if r[0]]
 async def like_comment(comment_id: int, user_id: int):
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
