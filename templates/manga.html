@@ -33,7 +33,8 @@
   <div class="chapter-list" id="chapters-grid">
     {% for ch in chapters %}
     <a class="chapter-item" href="/manga/{{ manga_id }}/read/{{ ch.volume }}/{{ ch.number }}">
-      Том {{ ch.volume }} · Глава {{ ch.number }}{% if ch.name %} — {{ ch.name }}{% endif %}
+      <span>Том {{ ch.volume }} · Глава {{ ch.number }}</span>
+      {% if ch.release_date %}<span class="chapter-item-date">{{ ch.release_date }}</span>{% endif %}
     </a>
     {% endfor %}
   </div>

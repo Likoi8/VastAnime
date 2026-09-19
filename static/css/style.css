@@ -1433,3 +1433,15 @@ svg {
   font-size: 12px;
   color: var(--accent);
 }
+
+.chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.chapter-item-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}

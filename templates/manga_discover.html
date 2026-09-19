@@ -13,6 +13,7 @@
   <a class="manga-card" href="/manga/{{ item.id }}">
     <img class="manga-cover" src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
     <div class="manga-card-title">{{ item.title }}</div>
+    {% if item.update_date %}<span class="manga-latest-chapter">{{ item.update_date }}</span>{% endif %}
   </a>
   {% endfor %}
 </section>
