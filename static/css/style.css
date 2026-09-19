@@ -1445,3 +1445,25 @@ svg {
   color: var(--text-muted);
   flex-shrink: 0;
 }
+
+.manga-reader-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 0 24px;
+}
+.manga-reader-nav-btn {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
+.manga-reader-nav-btn.disabled {
+  color: var(--text-muted);
+  opacity: 0.5;
+}

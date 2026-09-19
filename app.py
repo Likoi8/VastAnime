@@ -1164,19 +1164,38 @@ async def manga_read_page(request):
     chapter = request.match_info["chapter"]
     slug = manga_id_to_slug(manga_id)
     try:
-        pages = await asyncio.to_thread(manga_client.get_chapter_pages, slug, volume, chapter)
+        pages, chapters = await asyncio.gather(
+            asyncio.to_thread(manga_client.get_chapter_pages, slug, volume, chapter),
+            asyncio.to_thread(manga_client.get_chapters, slug),
+        )
     except Exception as e:
         return web.Response(text=f"Ошибка загрузки: {e}", status=500)
     if not pages:
         return web.Response(text="Страницы не найдены", status=404)
     for p in pages:
         p["proxy_url"] = "/manga-img/" + quote(p.get("url", ""), safe="")
+
+    prev_chapter = None
+    next_chapter = None
+    current_index = None
+    for idx, ch in enumerate(chapters):
+        if str(ch.get("volume")) == str(volume) and str(ch.get("number")) == str(chapter):
+            current_index = idx
+            break
+    if current_index is not None:
+        # chapters приходят от новых к старым (index 0 = самая новая)
+        if current_index + 1 < len(chapters):
+            prev_chapter = chapters[current_index + 1]
+        if current_index - 1 >= 0:
+            next_chapter = chapters[current_index - 1]
+
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "manga_read.html", request,
         {
             "manga_id": manga_id, "volume": volume, "chapter": chapter,
             "pages": pages, "current_user": current_user,
+            "prev_chapter": prev_chapter, "next_chapter": next_chapter,
         },
     )
 
