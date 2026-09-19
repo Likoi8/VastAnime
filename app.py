@@ -19,6 +19,7 @@ import db
 import auth
 import levels
 import manga_client
+from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -1057,8 +1058,7 @@ def _format_manga_date(raw_date):
         dt = datetime.strptime(raw_date.split(".")[0].rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
     except (ValueError, AttributeError):
         return None
-    months = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]
-    return f"{dt.day} {months[dt.month - 1]}"
+    return dt.strftime("%d.%m.%Y")
 
 
 def _format_manga_update_item(item):
@@ -1071,7 +1071,6 @@ def _format_manga_update_item(item):
         "image": (item.get("cover") or {}).get("default"),
         "type_label": (item.get("type") or {}).get("label"),
         "status_label": (item.get("status") or {}).get("label"),
-        "update_date": _format_manga_date(item.get("last_item_at")),
     }
 
 

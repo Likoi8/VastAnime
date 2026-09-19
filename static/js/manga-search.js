@@ -8,12 +8,10 @@
   const input = form.querySelector("input[name=q]");
 
   function renderCard(r) {
-    const dateLine = r.update_date ? `<span class="manga-latest-chapter">${r.update_date}</span>` : "";
     return `
       <a class="manga-card" href="/manga/${r.id}">
         <img class="manga-cover" src="${r.image || "/static/images/no-poster.svg"}" alt="${r.title}">
         <div class="manga-card-title">${r.title}</div>
-        ${dateLine}
       </a>
     `;
   }
