@@ -13,9 +13,6 @@
   <a class="manga-card" href="/manga/{{ item.id }}">
     <img class="manga-cover" src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
     <div class="manga-card-title">{{ item.title }}</div>
-    {% if item.latest_number %}
-    <span class="manga-latest-chapter">Гл. {{ item.latest_number }}{% if item.latest_volume %} (том {{ item.latest_volume }}){% endif %}</span>
-    {% endif %}
   </a>
   {% endfor %}
 </section>

@@ -8,14 +8,10 @@
   const input = form.querySelector("input[name=q]");
 
   function renderCard(r) {
-    const chapterLine = r.latest_number
-      ? `<span class="manga-latest-chapter">Гл. ${r.latest_number}${r.latest_volume ? ` (том ${r.latest_volume})` : ""}</span>`
-      : "";
     return `
       <a class="manga-card" href="/manga/${r.id}">
         <img class="manga-cover" src="${r.image || "/static/images/no-poster.svg"}" alt="${r.title}">
         <div class="manga-card-title">${r.title}</div>
-        ${chapterLine}
       </a>
     `;
   }
