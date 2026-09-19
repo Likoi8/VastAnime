@@ -39,7 +39,7 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </span>
-      <input type="text" name="q" placeholder="Поиск аниме..." autocomplete="off">
+      <input type="text" name="q" placeholder="{% block search_placeholder %}Поиск аниме...{% endblock %}" autocomplete="off">
     </form>
     <nav class="type-switcher" id="type-switcher">
       <a href="/" class="type-tab {% block type_tab_anime_active %}active{% endblock %}">Аниме</a>

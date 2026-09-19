@@ -841,7 +841,7 @@ async def css_version_processor(request):
 
 async def js_version_processor(request):
     versions = {}
-    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js"):
+    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js", "manga-search.js"):
         js_path = os.path.join(BASE_DIR, "static", "js", name)
         try:
             versions[name] = int(os.path.getmtime(js_path))
