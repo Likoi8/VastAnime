@@ -3318,5 +3318,13 @@
   "34486": {
     "has_video": false,
     "checked_at_ts": 1789649854.0326793
+  },
+  "50250": {
+    "has_video": true,
+    "checked_at_ts": 1789790068.4787476
+  },
+  "50418": {
+    "has_video": false,
+    "checked_at_ts": 1789790068.6125958
   }
 }
