@@ -1050,20 +1050,28 @@ def manga_id_to_slug(manga_id: str) -> str:
     return manga_id[2:] if manga_id.startswith("mg") else manga_id
 
 
+def _format_manga_date(raw_date):
+    if not raw_date:
+        return None
+    try:
+        dt = datetime.strptime(raw_date.split(".")[0].rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
+    except (ValueError, AttributeError):
+        return None
+    months = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]
+    return f"{dt.day} {months[dt.month - 1]}"
+
+
 def _format_manga_update_item(item):
     slug = item.get("slug_url")
     if not slug:
         return None
-    latest_items = ((item.get("metadata") or {}).get("latest_items") or {}).get("items") or []
-    latest = latest_items[0] if latest_items else {}
     return {
         "id": f"mg{slug}",
         "title": item.get("rus_name") or item.get("name"),
         "image": (item.get("cover") or {}).get("default"),
         "type_label": (item.get("type") or {}).get("label"),
         "status_label": (item.get("status") or {}).get("label"),
-        "latest_volume": latest.get("volume"),
-        "latest_number": latest.get("number"),
+        "update_date": _format_manga_date(item.get("last_item_at")),
     }
 
 
@@ -1140,6 +1148,9 @@ async def manga_page(request):
     if not info:
         return web.Response(text="Тайтл не найден", status=404)
     info["description_html"] = manga_client.render_summary_html(info.get("summary"))
+    for ch in chapters:
+        branches = ch.get("branches") or []
+        ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "manga.html", request,
