@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Том {{ volume }} Глава {{ chapter }} — VastAnime{% endblock %}
+{% block meta_description %}Читать онлайн на VastAnime{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_manga_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block body_class %}manga-reader-body{% endblock %}
+{% block content %}
+<button class="back-btn" onclick="history.back()" aria-label="Назад">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<div class="manga-reader-header">
+  <a href="/manga/{{ manga_id }}" class="manga-reader-title-link">← К тайтлу</a>
+  <span class="manga-reader-chapter-label">Том {{ volume }} · Глава {{ chapter }}</span>
+</div>
+<div class="manga-reader-pages">
+  {% for page in pages %}
+  <img class="manga-reader-page" src="/manga-img/{{ page.url | urlencode }}" alt="Страница {{ loop.index }}" loading="lazy">
+  {% endfor %}
+</div>
+{% endblock %}

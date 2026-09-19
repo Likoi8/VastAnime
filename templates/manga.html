@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ info.rus_name or info.name }} — VastAnime{% endblock %}
+{% block meta_description %}Читать {{ info.rus_name or info.name }} онлайн бесплатно на VastAnime{% endblock %}
+{% block canonical %}https://vastanime.ru/manga/{{ manga_id }}{% endblock %}
+{% block og_title %}{{ info.rus_name or info.name }} — VastAnime{% endblock %}
+{% block og_url %}https://vastanime.ru/manga/{{ manga_id }}{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_manga_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<button class="back-btn" onclick="history.back()" aria-label="Назад">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<section class="anime-card">
+  <div class="anime-poster-wrap">
+    <img class="anime-poster" src="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" alt="{{ info.rus_name or info.name }}">
+  </div>
+  <div class="anime-details">
+    <h1>{{ info.rus_name or info.name }}</h1>
+    <p class="anime-meta">
+      {{ (info.type or {}).get('label', '') }}
+      {% if info.chap_count %} · {{ info.chap_count }} гл.{% endif %}
+    </p>
+    <p class="anime-genres">
+      {% for g in (info.genres or []) %}<span class="genre-pill">{{ g.name }}</span>{% endfor %}
+    </p>
+    <div class="anime-description" id="anime-description">{{ info.description_html | safe }}</div>
+  </div>
+</section>
+<section class="episodes-section">
+  <h2>Главы</h2>
+  {% if chapters and chapters|length > 0 %}
+  <div class="episodes-grid" id="chapters-grid">
+    {% for ch in chapters %}
+    <a class="episode-pill" href="/manga/{{ manga_id }}/read/{{ ch.volume }}/{{ ch.number }}">
+      Том {{ ch.volume }} · Гл. {{ ch.number }}{% if ch.name %} — {{ ch.name }}{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="anime-meta">Главы недоступны (возможно, лицензированный тайтл).</p>
+  {% endif %}
+</section>
+{% endblock %}

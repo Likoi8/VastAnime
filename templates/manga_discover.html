@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Манга — VastAnime{% endblock %}
+{% block meta_description %}Читать мангу и манхву онлайн бесплатно на VastAnime{% endblock %}
+{% block canonical %}https://vastanime.ru/manga{% endblock %}
+{% block og_title %}Манга — VastAnime{% endblock %}
+{% block og_url %}https://vastanime.ru/manga{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_manga_active %}active{% endblock %}
+{% block content %}
+<section class="manga-search-section">
+  <input type="text" id="manga-search-input" class="manga-search-input" placeholder="Поиск манги...">
+</section>
+<section class="manga-grid" id="manga-grid"></section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var input = document.getElementById("manga-search-input");
+  var grid = document.getElementById("manga-grid");
+  var timer = null;
+
+  function render(results) {
+    grid.innerHTML = "";
+    if (!results.length) {
+      grid.innerHTML = '<p class="manga-empty">Ничего не найдено</p>';
+      return;
+    }
+    results.forEach(function (item) {
+      var a = document.createElement("a");
+      a.className = "manga-card";
+      a.href = "/manga/" + item.id;
+      a.innerHTML =
+        '<img class="manga-cover" src="' + (item.image || "/static/images/no-poster.svg") + '" alt="' + item.title + '">' +
+        '<div class="manga-card-title">' + item.title + '</div>' +
+        (item.type_label ? '<span class="manga-type-pill">' + item.type_label + '</span>' : '');
+      grid.appendChild(a);
+    });
+  }
+
+  input.addEventListener("input", function () {
+    clearTimeout(timer);
+    var q = input.value.trim();
+    if (!q) { grid.innerHTML = ""; return; }
+    timer = setTimeout(function () {
+      fetch("/api/manga/search?q=" + encodeURIComponent(q))
+        .then(function (r) { return r.json(); })
+        .then(function (data) { render(data.results || []); });
+    }, 300);
+  });
+})();
+</script>
+{% endblock %}
