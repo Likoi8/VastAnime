@@ -30,10 +30,10 @@
 <section class="episodes-section">
   <h2>Главы</h2>
   {% if chapters and chapters|length > 0 %}
-  <div class="episodes-grid" id="chapters-grid">
+  <div class="chapter-list" id="chapters-grid">
     {% for ch in chapters %}
-    <a class="episode-pill" href="/manga/{{ manga_id }}/read/{{ ch.volume }}/{{ ch.number }}">
-      Том {{ ch.volume }} · Гл. {{ ch.number }}{% if ch.name %} — {{ ch.name }}{% endif %}
+    <a class="chapter-item" href="/manga/{{ manga_id }}/read/{{ ch.volume }}/{{ ch.number }}">
+      Том {{ ch.volume }} · Глава {{ ch.number }}{% if ch.name %} — {{ ch.name }}{% endif %}
     </a>
     {% endfor %}
   </div>
