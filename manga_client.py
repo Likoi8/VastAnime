@@ -215,3 +215,28 @@ def render_summary_html(summary) -> str:
         return inner
 
     return "".join(render_node(c) for c in summary.get("content", []))
+
+
+_updates_cache = {"data": None, "ts": 0.0}
+_updates_lock = threading.Lock()
+UPDATES_CACHE_TTL = 300  # 5 минут — обновления меняются часто
+
+
+def get_latest_updates(limit=None):
+    """Последние обновлённые тайтлы (по свежести вышедших глав)."""
+    with _updates_lock:
+        if _updates_cache["data"] and (time.time() - _updates_cache["ts"]) < UPDATES_CACHE_TTL:
+            data = _updates_cache["data"]
+            return data[:limit] if limit else data
+
+        resp = requests.get(
+            f"{MANGALIB_API_BASE}/api/latest-updates",
+            params={"site_id[]": MANGALIB_SITE_ID},
+            headers=HEADERS,
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data = resp.json().get("data", [])
+        _updates_cache["data"] = data
+        _updates_cache["ts"] = time.time()
+        return data[:limit] if limit else data

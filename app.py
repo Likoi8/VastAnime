@@ -1050,12 +1050,43 @@ def manga_id_to_slug(manga_id: str) -> str:
     return manga_id[2:] if manga_id.startswith("mg") else manga_id
 
 
+def _format_manga_update_item(item):
+    slug = item.get("slug_url")
+    if not slug:
+        return None
+    latest_items = ((item.get("metadata") or {}).get("latest_items") or {}).get("items") or []
+    latest = latest_items[0] if latest_items else {}
+    return {
+        "id": f"mg{slug}",
+        "title": item.get("rus_name") or item.get("name"),
+        "image": (item.get("cover") or {}).get("default"),
+        "type_label": (item.get("type") or {}).get("label"),
+        "status_label": (item.get("status") or {}).get("label"),
+        "latest_volume": latest.get("volume"),
+        "latest_number": latest.get("number"),
+    }
+
+
 async def manga_discover_page(request):
+    try:
+        raw_updates = await asyncio.to_thread(manga_client.get_latest_updates, 30)
+    except Exception:
+        raw_updates = []
+    updates = [u for u in (_format_manga_update_item(i) for i in raw_updates) if u]
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "manga_discover.html", request,
-        {"current_user": current_user},
+        {"current_user": current_user, "updates": updates},
     )
+
+
+async def api_manga_updates(request):
+    try:
+        raw_updates = await asyncio.to_thread(manga_client.get_latest_updates, 30)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    updates = [u for u in (_format_manga_update_item(i) for i in raw_updates) if u]
+    return web.json_response({"results": updates})
 
 
 async def api_manga_search(request):
@@ -1183,6 +1214,7 @@ def create_app():
     app.router.add_get("/discover", discover)
     app.router.add_get("/manga", manga_discover_page)
     app.router.add_get("/api/manga/search", api_manga_search)
+    app.router.add_get("/api/manga/updates", api_manga_updates)
     app.router.add_get("/api/manga/{manga_id}", api_manga_info)
     app.router.add_get("/manga/{manga_id}", manga_page)
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)

@@ -2,9 +2,23 @@
   const form = document.getElementById("header-search");
   const gridEl = document.getElementById("manga-grid");
   if (!form || !gridEl) return;
+  const originalGridHTML = gridEl.innerHTML;
   const params = new URLSearchParams(window.location.search);
   const initialQuery = params.get("q");
   const input = form.querySelector("input[name=q]");
+
+  function renderCard(r) {
+    const chapterLine = r.latest_number
+      ? `<span class="manga-latest-chapter">Гл. ${r.latest_number}${r.latest_volume ? ` (том ${r.latest_volume})` : ""}</span>`
+      : "";
+    return `
+      <a class="manga-card" href="/manga/${r.id}">
+        <img class="manga-cover" src="${r.image || "/static/images/no-poster.svg"}" alt="${r.title}">
+        <div class="manga-card-title">${r.title}</div>
+        ${chapterLine}
+      </a>
+    `;
+  }
 
   async function runSearch(query) {
     gridEl.innerHTML = '<p class="manga-empty">Ищу…</p>';
@@ -23,25 +37,20 @@
       gridEl.innerHTML = '<p class="manga-empty">Ничего не найдено.</p>';
       return;
     }
-    gridEl.innerHTML = results.map(r => `
-      <a class="manga-card" href="/manga/${r.id}">
-        <img class="manga-cover" src="${r.image || "/static/images/no-poster.svg"}" alt="${r.title}">
-        <div class="manga-card-title">${r.title}</div>
-      </a>
-    `).join("");
+    gridEl.innerHTML = results.map(renderCard).join("");
   }
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = input.value.trim();
     if (q) runSearch(q);
-    else gridEl.innerHTML = "";
+    else gridEl.innerHTML = originalGridHTML;
   });
 
   input.addEventListener("input", () => {
     clearTimeout(window._mangaSearchTimer);
     const q = input.value.trim();
-    if (!q) { gridEl.innerHTML = ""; return; }
+    if (!q) { gridEl.innerHTML = originalGridHTML; return; }
     window._mangaSearchTimer = setTimeout(() => runSearch(q), 300);
   });
 
