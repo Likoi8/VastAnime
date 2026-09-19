@@ -41,12 +41,50 @@
       </span>
       <input type="text" name="q" placeholder="Поиск аниме..." autocomplete="off">
     </form>
-    <nav class="type-switcher">
+    <nav class="type-switcher" id="type-switcher">
       <a href="/" class="type-tab {% block type_tab_anime_active %}active{% endblock %}">Аниме</a>
       <a href="/manga" class="type-tab {% block type_tab_manga_active %}{% endblock %}">Манга</a>
+      <span class="type-switcher-underline" id="type-switcher-underline"></span>
     </nav>
   </div>
 </header>
+<script>
+(function () {
+  var nav = document.getElementById("type-switcher");
+  var underline = document.getElementById("type-switcher-underline");
+  if (!nav || !underline) return;
+
+  function moveUnderline(tab, animate) {
+    if (!tab) return;
+    underline.style.transition = animate ? "" : "none";
+    underline.style.width = tab.offsetWidth + "px";
+    underline.style.left = tab.offsetLeft + "px";
+    if (!animate) {
+      underline.offsetHeight;
+      underline.style.transition = "";
+    }
+  }
+
+  var active = nav.querySelector(".type-tab.active");
+  moveUnderline(active, false);
+
+  nav.querySelectorAll(".type-tab").forEach(function (tab) {
+    tab.addEventListener("click", function (e) {
+      if (tab.classList.contains("active")) return;
+      e.preventDefault();
+      var href = tab.getAttribute("href");
+      moveUnderline(tab, true);
+      setTimeout(function () {
+        window.location.href = href;
+      }, 220);
+    });
+  });
+
+  window.addEventListener("resize", function () {
+    moveUnderline(nav.querySelector(".type-tab.active"), false);
+  });
+})();
+</script>
 {% endblock %}
 <main class="site-main">
 {% block content %}{% endblock %}
