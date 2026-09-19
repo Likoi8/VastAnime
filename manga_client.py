@@ -186,3 +186,32 @@ def fetch_page_image(url):
     if resp.status_code != 200:
         return None, None
     return resp.content, resp.headers.get("Content-Type", "image/webp")
+
+
+def render_summary_html(summary) -> str:
+    """Минимальный рендерер TipTap doc -> HTML (только paragraph/text/bold/italic/hard_break)."""
+    if not summary or not isinstance(summary, dict):
+        return ""
+
+    def render_marks(text, marks):
+        for m in marks or []:
+            t = m.get("type")
+            if t == "bold":
+                text = f"<b>{text}</b>"
+            elif t == "italic":
+                text = f"<i>{text}</i>"
+        return text
+
+    def render_node(node):
+        node_type = node.get("type")
+        children = node.get("content", [])
+        if node_type == "text":
+            return render_marks(node.get("text", ""), node.get("marks"))
+        if node_type == "hardBreak":
+            return "<br>"
+        inner = "".join(render_node(c) for c in children)
+        if node_type == "paragraph":
+            return f"<p>{inner}</p>"
+        return inner
+
+    return "".join(render_node(c) for c in summary.get("content", []))

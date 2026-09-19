@@ -18,6 +18,7 @@ import config
 import db
 import auth
 import levels
+import manga_client
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -1044,6 +1045,117 @@ async def img_proxy(request):
     )
 
 
+
+def manga_id_to_slug(manga_id: str) -> str:
+    return manga_id[2:] if manga_id.startswith("mg") else manga_id
+
+
+async def manga_discover_page(request):
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "manga_discover.html", request,
+        {"current_user": current_user},
+    )
+
+
+async def api_manga_search(request):
+    query = request.query.get("q", "").strip()
+    if not query:
+        return web.json_response({"results": []})
+    try:
+        results = await asyncio.to_thread(manga_client.search_manga, query, 20)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    out = []
+    for item in results:
+        slug = item.get("slug_url")
+        if not slug:
+            continue
+        out.append({
+            "id": f"mg{slug}",
+            "title": item.get("rus_name") or item.get("name"),
+            "image": (item.get("cover") or {}).get("default"),
+            "type_label": (item.get("type") or {}).get("label"),
+        })
+    return web.json_response({"results": out})
+
+
+async def api_manga_info(request):
+    manga_id = request.match_info["manga_id"]
+    slug = manga_id_to_slug(manga_id)
+    try:
+        info, chapters = await asyncio.gather(
+            asyncio.to_thread(manga_client.get_manga_info, slug),
+            asyncio.to_thread(manga_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    if not info:
+        return web.json_response({"error": "not_found"}, status=404)
+    info["description_html"] = manga_client.render_summary_html(info.get("summary"))
+    return web.json_response({"manga_id": manga_id, "info": info, "chapters": chapters})
+
+
+async def manga_page(request):
+    manga_id = request.match_info["manga_id"]
+    slug = manga_id_to_slug(manga_id)
+    try:
+        info, chapters = await asyncio.gather(
+            asyncio.to_thread(manga_client.get_manga_info, slug),
+            asyncio.to_thread(manga_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.Response(text=f"Ошибка загрузки: {e}", status=500)
+    if not info:
+        return web.Response(text="Тайтл не найден", status=404)
+    info["description_html"] = manga_client.render_summary_html(info.get("summary"))
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "manga.html", request,
+        {"manga_id": manga_id, "info": info, "chapters": chapters, "current_user": current_user},
+    )
+
+
+async def manga_read_page(request):
+    manga_id = request.match_info["manga_id"]
+    volume = request.match_info["volume"]
+    chapter = request.match_info["chapter"]
+    slug = manga_id_to_slug(manga_id)
+    try:
+        pages = await asyncio.to_thread(manga_client.get_chapter_pages, slug, volume, chapter)
+    except Exception as e:
+        return web.Response(text=f"Ошибка загрузки: {e}", status=500)
+    if not pages:
+        return web.Response(text="Страницы не найдены", status=404)
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "manga_read.html", request,
+        {
+            "manga_id": manga_id, "volume": volume, "chapter": chapter,
+            "pages": pages, "current_user": current_user,
+        },
+    )
+
+
+async def manga_img_proxy(request):
+    from urllib.parse import unquote
+    encoded = request.match_info["encoded"]
+    original_url = unquote(encoded)
+    if not original_url.startswith("http"):
+        return web.Response(status=400, text="bad url")
+    try:
+        data, content_type = await asyncio.to_thread(manga_client.fetch_page_image, original_url)
+    except Exception:
+        return web.Response(status=502, text="fetch failed")
+    if data is None:
+        return web.Response(status=502, text="upstream error")
+    return web.Response(
+        body=data,
+        content_type=content_type or "image/webp",
+        headers={"Cache-Control": "public, max-age=2592000"},
+    )
+
+
 def create_app():
     app = web.Application(middlewares=[error_middleware])
     aiohttp_session.setup(
@@ -1066,6 +1178,12 @@ def create_app():
     app.on_cleanup.append(_stop_cache_warmer)
     app.router.add_get("/", index)
     app.router.add_get("/discover", discover)
+    app.router.add_get("/manga", manga_discover_page)
+    app.router.add_get("/api/manga/search", api_manga_search)
+    app.router.add_get("/api/manga/{manga_id}", api_manga_info)
+    app.router.add_get("/manga/{manga_id}", manga_page)
+    app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
+    app.router.add_get("/manga-img/{encoded}", manga_img_proxy)
     app.router.add_get("/api/updates", api_updates)
     app.router.add_get("/bookmarks", bookmarks_page)
     app.router.add_get("/profile", profile_page)
