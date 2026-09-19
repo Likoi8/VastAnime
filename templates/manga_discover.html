@@ -31,8 +31,7 @@
       a.href = "/manga/" + item.id;
       a.innerHTML =
         '<img class="manga-cover" src="' + (item.image || "/static/images/no-poster.svg") + '" alt="' + item.title + '">' +
-        '<div class="manga-card-title">' + item.title + '</div>' +
-        (item.type_label ? '<span class="manga-type-pill">' + item.type_label + '</span>' : '');
+        '<div class="manga-card-title">' + item.title + '</div>';
       grid.appendChild(a);
     });
   }

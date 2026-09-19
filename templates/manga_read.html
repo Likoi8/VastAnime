@@ -16,7 +16,7 @@
 </div>
 <div class="manga-reader-pages">
   {% for page in pages %}
-  <img class="manga-reader-page" src="/manga-img/{{ page.url | urlencode }}" alt="Страница {{ loop.index }}" loading="lazy">
+  <img class="manga-reader-page" src="{{ page.proxy_url }}" alt="Страница {{ loop.index }}" loading="lazy">
   {% endfor %}
 </div>
 {% endblock %}

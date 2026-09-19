@@ -1117,6 +1117,7 @@ async def manga_page(request):
 
 
 async def manga_read_page(request):
+    from urllib.parse import quote
     manga_id = request.match_info["manga_id"]
     volume = request.match_info["volume"]
     chapter = request.match_info["chapter"]
@@ -1127,6 +1128,8 @@ async def manga_read_page(request):
         return web.Response(text=f"Ошибка загрузки: {e}", status=500)
     if not pages:
         return web.Response(text="Страницы не найдены", status=404)
+    for p in pages:
+        p["proxy_url"] = "/manga-img/" + quote(p.get("url", ""), safe="")
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "manga_read.html", request,
