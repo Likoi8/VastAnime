@@ -8,6 +8,8 @@ MANGALIB_SITE_ID = 1  # 1 = manga/manhwa/manhua on lib.social network
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Accept": "application/json",
+    "Referer": "https://mangalib.me/",
+    "Origin": "https://mangalib.me",
     "Site-Id": str(MANGALIB_SITE_ID),
 }
 
