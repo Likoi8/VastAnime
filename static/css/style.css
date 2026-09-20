@@ -1552,3 +1552,16 @@ body.manga-reader-body .site-main {
     max-width: 640px;
   }
 }
+
+.manga-reader-nav-btn {
+  padding: 10px 14px;
+}
+@media (min-width: 993px) {
+  .manga-reader-nav-btn {
+    min-width: 0;
+    padding: 10px 18px;
+  }
+}
+
+.manga-reader-nav { justify-content: center; }
+.manga-reader-nav-btn { flex: 0 0 auto; }
