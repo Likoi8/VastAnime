@@ -472,13 +472,13 @@ async def _has_kodik_video(shikimori_id: str) -> bool:
     return has_video
 
 
-async def get_updates() -> list[dict]:
+async def get_updates(force: bool = False) -> list[dict]:
     """Лента главной. НЕ ждёт Kodik — читает только локальный кэш
     (тот же принцип, что и в search_title). Тайтлы без записи в кэше
     показываются оптимистично, проверка запускается в фоне и допишет
     кэш к следующему обновлению ленты."""
     now = time.time()
-    if _updates_cache["data"] is not None and (now - _updates_cache["ts"]) < _UPDATES_CACHE_TTL:
+    if not force and _updates_cache["data"] is not None and (now - _updates_cache["ts"]) < _UPDATES_CACHE_TTL * 12:
         return _updates_cache["data"]
     def _run():
         return shikimori_client.get_updates(limit=100)
@@ -578,7 +578,7 @@ async def warm_caches_forever():
     refresh_every = 240  # обновляем за 60с до истечения 300с TTL
     while True:
         try:
-            await get_updates()
+            await get_updates(force=True)
         except Exception:
             pass
         try:

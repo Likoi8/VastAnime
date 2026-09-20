@@ -474,7 +474,7 @@ _ANILIST_CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "
 _anilist_cache = {}  # mal_id(str) -> url|None
 _anilist_cache_lock = threading.Lock()
 _anilist_last_call = 0.0
-_ANILIST_MIN_INTERVAL = 0.7  # ~85 запросов/мин, с запасом от лимита AniList (90/мин)
+_ANILIST_MIN_INTERVAL = 2.0  # ~85 запросов/мин, с запасом от лимита AniList (90/мин)
 _anilist_rate_lock = threading.Lock()  # сериализует троттлинг+HTTP всех вызовов _fetch_anilist_cover
 
 
@@ -506,6 +506,11 @@ query($id: Int) {
 """
 
 
+_anilist_neg = {}  # key -> время (epoch), до которого AniList не трогаем
+_ANILIST_NEG_404_TTL = 6 * 3600
+_ANILIST_NEG_429_TTL = 60
+
+
 def _fetch_anilist_cover(mal_id):
     """Возвращает URL обложки с AniList по MyAnimeList id, или None.
     Результат кешируется навсегда в файл на диске.
@@ -520,6 +525,8 @@ def _fetch_anilist_cover(mal_id):
         cached = _anilist_cache.get(key, "___MISSING___")
     if cached != "___MISSING___":
         return cached
+    if _anilist_neg.get(key, 0) > time.time() or _anilist_neg.get("__all__", 0) > time.time():
+        return None
 
     with _anilist_rate_lock:
         now = time.time()
@@ -547,6 +554,10 @@ def _fetch_anilist_cover(mal_id):
                     f"[shikimori_client] anilist non-200 for mal_id={mal_id}: {resp.status_code}",
                     flush=True,
                 )
+                if resp.status_code == 404:
+                    _anilist_neg[key] = time.time() + _ANILIST_NEG_404_TTL
+                elif resp.status_code == 429:
+                    _anilist_neg["__all__"] = time.time() + _ANILIST_NEG_429_TTL
         except Exception as e:
             print(f"[shikimori_client] anilist fetch failed for mal_id={mal_id}: {e}", flush=True)
 
@@ -668,7 +679,11 @@ def get_updates(limit=None, only_page=None, status="ongoing", order="aired_on"):
         # источник картинок (низкое качество / нестабильные заглушки).
         image_url = _fetch_anilist_cover(meta.get("mal_id"))
         if not image_url:
-            continue  # без обложки с AniList - не показываем в ленте
+            img = item.get("image") or {}
+            rel = img.get("original") or img.get("preview")
+            if not rel:
+                continue
+            image_url = rel if rel.startswith("http") else f"{SHIKIMORI_BASE}{rel}"
 
         genres = [g.get("russian") or g.get("name") for g in (item.get("genres") or [])]
         episodes_total = item.get("episodes") or item.get("episodes_aired") or 0

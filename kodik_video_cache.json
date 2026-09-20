@@ -4038,5 +4038,21 @@
   "36511": {
     "has_video": true,
     "checked_at_ts": 1789932495.3853629
+  },
+  "65006": {
+    "has_video": false,
+    "checked_at_ts": 1789935279.2836957
+  },
+  "64914": {
+    "has_video": false,
+    "checked_at_ts": 1789935279.6117687
+  },
+  "63816": {
+    "has_video": false,
+    "checked_at_ts": 1789935349.5166495
+  },
+  "59978": {
+    "has_video": true,
+    "checked_at_ts": 1789935349.980111
   }
 }
