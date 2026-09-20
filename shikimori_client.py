@@ -400,7 +400,8 @@ def _strip_html(text):
     return re.sub(r"<[^>]+>", "", text).strip()
 
 
-_TRANSLATE_CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate_cache.json")
+import os as _os_translate
+_TRANSLATE_CACHE_FILE = _os_translate.path.join(_os_translate.path.dirname(_os_translate.path.abspath(__file__)), "translate_cache.json")
 _translate_cache = {}  # text_hash -> translated(str)
 _translate_cache_lock = threading.Lock()
 
