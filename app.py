@@ -899,6 +899,11 @@ async def visit_middleware(request, handler):
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
             skip_ip = ip in ("127.0.0.1", "::1", "85.174.187.87")
             if not (skip_path or skip_ua or skip_ip):
+                ua = (request.headers.get("User-Agent") or "").lower()
+            skip_path = request.path.startswith(("/api/", "/manga-img/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+            skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
+            skip_ip = ip in ("127.0.0.1", "::1", "85.174.187.87")
+            if not (skip_path or skip_ua or skip_ip):
                 await db.log_visit(ip, visitor_id, request.path)
         except Exception:
             logging.exception("visit logging failed")
