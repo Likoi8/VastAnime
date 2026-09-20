@@ -1396,13 +1396,13 @@ def create_app():
             max_age=60 * 60 * 24 * 30,  # 30 дней
         ),
     )
-    app.middlewares.append(bot_guard_middleware)
-    app.middlewares.append(visit_middleware)
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader(os.path.join(BASE_DIR, "templates")),
         context_processors=[css_version_processor, user_context_processor, js_version_processor],
     )
+    app.middlewares.append(bot_guard_middleware)
+    app.middlewares.append(visit_middleware)
     aiohttp_jinja2.get_env(app).filters["cache_img"] = cache_img_filter
     app.on_startup.append(_init_db)
     app.on_startup.append(_start_cache_warmer)
