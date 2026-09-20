@@ -1743,3 +1743,14 @@ html.sheet-lock, html.sheet-lock body {
 
 .title-sheet { visibility: hidden; transition: visibility 0s linear 0.3s; }
 .title-sheet.open { visibility: visible; transition-delay: 0s; }
+
+.screenshots-scroll {
+  margin-right: -16px;
+  padding-right: 16px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.shot-item { scroll-snap-align: start; }
+@media (max-width: 992px) {
+  .shot-item img { height: 110px; }
+}
