@@ -246,19 +246,20 @@ def get_latest_updates(limit=None):
 
 _updates_pages_cache = {}  # page(int) -> (timestamp, data)
 _updates_pages_lock = threading.Lock()
-UPDATES_MAX_PAGE = 10
+UPDATES_MAX_PAGE = 2
 
 
 def get_latest_updates_page(page=1):
-    """Одна страница последних обновлений (кэш 5 минут на страницу)."""
+    """Страница каталога (60 тайтлов), сортировка по свежей главе; кэш 5 минут."""
     page = max(1, min(int(page), UPDATES_MAX_PAGE))
     with _updates_pages_lock:
         cached = _cached(_updates_pages_cache, page, UPDATES_CACHE_TTL)
         if cached is not None:
             return cached
         resp = requests.get(
-            f"{MANGALIB_API_BASE}/api/latest-updates",
-            params={"site_id[]": MANGALIB_SITE_ID, "page": page},
+            f"{MANGALIB_API_BASE}/api/manga",
+            params={"site_id[]": MANGALIB_SITE_ID, "page": page,
+                    "sort_by": "last_chapter_at", "sort_type": "desc"},
             headers=HEADERS,
             timeout=10,
         )
