@@ -379,6 +379,7 @@ def get_shikimori_info(shikimori_id):
         fallback_desc = _fetch_anilist_description(data.get("myanimelist_id"))
         if fallback_desc and len(fallback_desc) > len(description or ""):
             description = fallback_desc
+    description = _strip_source_note(description)
     description = _translate_to_russian(description)
     result = {
         "title": data.get("russian") or data.get("name"),
@@ -400,6 +401,14 @@ def _strip_html(text):
     if not text:
         return ""
     return re.sub(r"<[^>]+>", "", text).strip()
+
+
+def _strip_source_note(text):
+    """Убирает завершающую пометку вида (Source: ...) / (Источник: ...),
+    которую AniList часто добавляет в конец описания."""
+    if not text:
+        return text
+    return re.sub(r"\s*\((?:Source|Источник)\s*:.*?\)\s*$", "", text, flags=re.IGNORECASE).strip()
 
 
 _TRANSLATE_CACHE_FILE = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "translate_cache.json")
