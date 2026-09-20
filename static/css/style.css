@@ -1472,5 +1472,5 @@ svg {
 
 .chapter-item-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .chapter-status { font-size: 12px; padding: 2px 8px; border-radius: 999px; }
-.chapter-status--reading { background: rgba(255, 193, 7, 0.18); color: #ffca4a; }
-.chapter-status--read { background: rgba(76, 175, 80, 0.18); color: #6fd07a; }
+.chapter-status--reading { background: rgba(110, 50, 170, 0.35); color: #a878d8; }
+.chapter-status--read { background: rgba(236, 72, 190, 0.28); color: #ff8fe0; box-shadow: 0 0 8px rgba(236, 72, 190, 0.35); }
