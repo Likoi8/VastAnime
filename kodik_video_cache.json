@@ -3998,5 +3998,37 @@
   "37999": {
     "has_video": true,
     "checked_at_ts": 1789928592.2377334
+  },
+  "61942": {
+    "has_video": true,
+    "checked_at_ts": 1789932415.7144353
+  },
+  "60098": {
+    "has_video": true,
+    "checked_at_ts": 1789932416.0628333
+  },
+  "60593": {
+    "has_video": true,
+    "checked_at_ts": 1789932416.327372
+  },
+  "54789": {
+    "has_video": true,
+    "checked_at_ts": 1789932416.6710966
+  },
+  "41587": {
+    "has_video": true,
+    "checked_at_ts": 1789932416.9483745
+  },
+  "136": {
+    "has_video": true,
+    "checked_at_ts": 1789932439.8112686
+  },
+  "55701": {
+    "has_video": true,
+    "checked_at_ts": 1789932440.4074016
+  },
+  "49926": {
+    "has_video": true,
+    "checked_at_ts": 1789932440.6773074
   }
 }
