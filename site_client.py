@@ -791,3 +791,31 @@ async def get_kodik_poster_for_anime(anime_id: str) -> Optional[str]:
     if not sid:
         return None
     return await kodik_client.get_poster(sid)
+
+
+_updates_pages = {}  # page -> (ts, data)
+_UPDATES_PAGES_TTL = 600
+_UPDATES_PAGES_MAX = 40
+_updates_pages_lock = asyncio.Lock()
+
+
+async def get_updates_page(page: int) -> list[dict]:
+    page = max(1, min(int(page), _UPDATES_PAGES_MAX))
+    async with _updates_pages_lock:
+        entry = _updates_pages.get(page)
+        if entry and (time.time() - entry[0]) < _UPDATES_PAGES_TTL:
+            return entry[1]
+        raw = await asyncio.to_thread(shikimori_client.get_updates, None, page)
+        data = []
+        for item in raw:
+            sid = item["id"][2:] if item.get("id", "").startswith("sh") else None
+            if not sid:
+                continue
+            e = kodik_video_cache.get_cached_entry(sid)
+            if e is None:
+                data.append(item)
+                _schedule_kodik_bg_refresh(sid)
+            elif e["has_video"]:
+                data.append(item)
+        _updates_pages[page] = (time.time(), data)
+        return data

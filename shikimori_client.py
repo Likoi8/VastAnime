@@ -605,7 +605,7 @@ def _schedule_meta_bg_resolve(node_id):
     _meta_resolve_queue.put(node_id)
 
 
-def get_updates(limit=None):
+def get_updates(limit=None, only_page=None):
     """
     Лента онгоингов с Shikimori (замена animego-ленты на главной).
     Исключает донхуа (тайтлы с не-'real' студиями на Shikimori)
@@ -621,7 +621,7 @@ def get_updates(limit=None):
     MAX_PAGES = 20  # защита от бесконечного цикла
 
     raw_items = []
-    for page in range(1, MAX_PAGES + 1):
+    for page in (range(only_page, only_page + 1) if only_page else range(1, MAX_PAGES + 1)):
         params = {"status": "ongoing", "order": "aired_on", "limit": PAGE_SIZE, "page": page}
         try:
             resp = requests.get(url, params=params, headers=HEADERS, timeout=8)

@@ -1074,6 +1074,26 @@ def _format_manga_update_item(item):
     }
 
 
+async def api_anime_updates(request):
+    try:
+        page = int(request.query.get("page", "5"))
+    except ValueError:
+        page = 5
+    page = max(1, min(page, 40))
+    try:
+        raw = await site_client.get_updates_page(page)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    items = [{
+        "id": u.get("id"), "title": u.get("title"), "image": u.get("image"),
+        "score": u.get("score"), "episodes": u.get("episodes_total"),
+    } for u in raw if u.get("id")]
+    return web.json_response(
+        {"items": items, "page": page, "has_more": page < 40 and len(raw) > 0},
+        headers={"Cache-Control": "public, max-age=300"},
+    )
+
+
 async def manga_discover_page(request):
     try:
         raw_updates = await asyncio.to_thread(manga_client.get_latest_updates, 30)
@@ -1263,6 +1283,7 @@ def create_app():
     app.router.add_get("/manga", manga_discover_page)
     app.router.add_get("/api/manga/search", api_manga_search)
     app.router.add_get("/api/manga/updates", api_manga_updates)
+    app.router.add_get("/api/anime/updates", api_anime_updates)
     app.router.add_get("/api/manga/{manga_id}", api_manga_info)
     app.router.add_get("/manga/{manga_id}", manga_page)
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
