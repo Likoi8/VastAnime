@@ -1569,3 +1569,14 @@ body.manga-reader-body .site-main {
 @media (max-width: 992px) {
   .manga-reader-nav-title { display: none; }
 }
+
+@media (max-width: 992px) {
+  .manga-reader-nav { justify-content: space-between; gap: 10px; }
+  .manga-reader-nav-btn { flex: 1 1 0; }
+}
+
+.mr-back-mobile { display: none; }
+@media (max-width: 992px) {
+  .mr-back-desktop { display: none; }
+  .mr-back-mobile { display: inline; }
+}
