@@ -186,7 +186,7 @@ async def discover(request):
 
     return aiohttp_jinja2.render_template(
         "discover.html", request,
-        {"season": season_items[:12], "schedule": schedule_with_ids},
+        {"season": season_items[:10], "schedule": schedule_with_ids},
     )
 
 
@@ -242,7 +242,7 @@ async def api_discover(request):
             else:
                 processed.append(item)
         schedule_with_ids[day] = processed
-    return web.json_response({"season": season_items[:12], "schedule": schedule_with_ids})
+    return web.json_response({"season": season_items[:10], "schedule": schedule_with_ids})
 
 
 async def api_anime_info(request):
