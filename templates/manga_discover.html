@@ -8,6 +8,13 @@
 {% block type_tab_manga_active %}active{% endblock %}
 {% block nav_home_active %}active{% endblock %}
 {% block search_placeholder %}Поиск манги...{% endblock %}
+{% block sakura %}
+<div class="sakura-container" aria-hidden="true">
+  {% for i in range(15) %}
+  <span class="sakura-petal" style="left: {{ (i * 53 + 17) % 100 }}%; width: {{ 6 + (i % 4) }}px; height: {{ 6 + (i % 4) }}px; animation-duration: {{ 9 + (i * 7 % 6) }}s; animation-delay: {{ ((i * 1.1 + (i % 3) * 2.3) % 12) | round(1) }}s;"></span>
+  {% endfor %}
+</div>
+{% endblock %}
 {% block content %}
 <section class="feed" id="manga-grid">
   {% for item in updates %}
