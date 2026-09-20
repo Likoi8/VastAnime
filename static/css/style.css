@@ -1520,3 +1520,17 @@ body.manga-reader-body .site-main {
     border-radius: 10px;
   }
 }
+
+.manga-reader-nav-title {
+  transition: transform 0.2s ease, border-color 0.25s ease;
+}
+@media (hover: hover) {
+  .manga-reader-nav-title:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
+  }
+}
+.manga-reader-nav-title:active { transform: scale(0.97); }
+@media (min-width: 993px) {
+  .manga-reader-nav-title { min-width: 0; padding: 12px 20px; }
+}
