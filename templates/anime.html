@@ -32,10 +32,11 @@
         <div class="ts-value">{{ info.original_title }}</div>
       </div>
       {% endif %}
-    {% if info.alt_titles|join(', ') if info.alt_titles else '' %}
+    {% set alt_joined = info.alt_titles|join(', ') if info.alt_titles else '' %}
+      {% if alt_joined %}
       <div class="ts-field">
-        <div class="ts-label"><span>Альтернативные названия</span><button type="button" class="ts-copy" data-copy="{{ info.alt_titles|join(', ') if info.alt_titles else '' }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
-        <div class="ts-value">{{ info.alt_titles|join(', ') if info.alt_titles else '' }}</div>
+        <div class="ts-label"><span>Альтернативные названия</span><button type="button" class="ts-copy" data-copy="{{ alt_joined }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+        <div class="ts-value">{{ alt_joined }}</div>
       </div>
       {% endif %}
     <button type="button" class="ts-close" data-close="1">Закрыть</button>
