@@ -370,7 +370,7 @@ async def get_voices(anime_id: str, episode: int):
             translation_id=t.id,
         )
         for t in translations
-        if not t.series_range or (t.series_range[0] <= episode <= t.series_range[1])
+        if not t.series_range or not any(t.series_range) or (t.series_range[0] <= episode <= t.series_range[1])
     ]
     return voices, series_count
 
