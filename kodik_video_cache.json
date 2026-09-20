@@ -3902,5 +3902,101 @@
   "52991": {
     "has_video": true,
     "checked_at_ts": 1789927999.6129818
+  },
+  "9253": {
+    "has_video": true,
+    "checked_at_ts": 1789928585.35645
+  },
+  "33486": {
+    "has_video": true,
+    "checked_at_ts": 1789928585.644387
+  },
+  "28851": {
+    "has_video": true,
+    "checked_at_ts": 1789928585.883948
+  },
+  "19815": {
+    "has_video": true,
+    "checked_at_ts": 1789928586.364558
+  },
+  "23273": {
+    "has_video": true,
+    "checked_at_ts": 1789928586.5058055
+  },
+  "36456": {
+    "has_video": true,
+    "checked_at_ts": 1789928586.838601
+  },
+  "4224": {
+    "has_video": true,
+    "checked_at_ts": 1789928587.161317
+  },
+  "32182": {
+    "has_video": true,
+    "checked_at_ts": 1789928587.4621818
+  },
+  "20507": {
+    "has_video": true,
+    "checked_at_ts": 1789928587.765724
+  },
+  "31043": {
+    "has_video": true,
+    "checked_at_ts": 1789928588.0170627
+  },
+  "22199": {
+    "has_video": true,
+    "checked_at_ts": 1789928588.3387544
+  },
+  "24833": {
+    "has_video": true,
+    "checked_at_ts": 1789928588.7100306
+  },
+  "23755": {
+    "has_video": true,
+    "checked_at_ts": 1789928588.992241
+  },
+  "6547": {
+    "has_video": true,
+    "checked_at_ts": 1789928589.281115
+  },
+  "20583": {
+    "has_video": true,
+    "checked_at_ts": 1789928589.5892673
+  },
+  "1": {
+    "has_video": true,
+    "checked_at_ts": 1789928589.8280706
+  },
+  "9919": {
+    "has_video": true,
+    "checked_at_ts": 1789928590.1908226
+  },
+  "22535": {
+    "has_video": true,
+    "checked_at_ts": 1789928590.4797442
+  },
+  "30": {
+    "has_video": true,
+    "checked_at_ts": 1789928590.7503698
+  },
+  "199": {
+    "has_video": false,
+    "checked_at_ts": 1789928590.9659088
+  },
+  "33352": {
+    "has_video": true,
+    "checked_at_ts": 1789928591.4249294
+  },
+  "44511": {
+    "has_video": true,
+    "checked_at_ts": 1789928591.6881623
+  },
+  "38691": {
+    "has_video": true,
+    "checked_at_ts": 1789928591.9816158
+  },
+  "37999": {
+    "has_video": true,
+    "checked_at_ts": 1789928592.2377334
   }
 }
