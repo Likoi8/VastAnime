@@ -3326,5 +3326,41 @@
   "50418": {
     "has_video": false,
     "checked_at_ts": 1789790068.6125958
+  },
+  "16498": {
+    "has_video": true,
+    "checked_at_ts": 1789927505.289321
+  },
+  "1535": {
+    "has_video": true,
+    "checked_at_ts": 1789927505.7859142
+  },
+  "30276": {
+    "has_video": true,
+    "checked_at_ts": 1789927505.9701383
+  },
+  "38000": {
+    "has_video": true,
+    "checked_at_ts": 1789927506.2314281
+  },
+  "31964": {
+    "has_video": true,
+    "checked_at_ts": 1789927506.521007
+  },
+  "40748": {
+    "has_video": true,
+    "checked_at_ts": 1789927506.8506162
+  },
+  "22319": {
+    "has_video": true,
+    "checked_at_ts": 1789927507.164395
+  },
+  "32281": {
+    "has_video": true,
+    "checked_at_ts": 1789927507.374425
+  },
+  "269": {
+    "has_video": true,
+    "checked_at_ts": 1789927507.9025161
   }
 }

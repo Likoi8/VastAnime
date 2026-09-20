@@ -805,7 +805,7 @@ async def get_updates_page(page: int) -> list[dict]:
         entry = _updates_pages.get(page)
         if entry and (time.time() - entry[0]) < _UPDATES_PAGES_TTL:
             return entry[1]
-        raw = await asyncio.to_thread(shikimori_client.get_updates, None, page)
+        raw = await asyncio.to_thread(shikimori_client.get_updates, None, page - 4, "released", "popularity")
         data = []
         for item in raw:
             sid = item["id"][2:] if item.get("id", "").startswith("sh") else None
