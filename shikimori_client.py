@@ -352,7 +352,9 @@ def get_shikimori_info(shikimori_id):
 
     cached = _cache.get(shikimori_id)
     if cached and (time.time() - cached[0] < CACHE_TTL):
-        return cached[1]
+        result = dict(cached[1])
+        result["description"] = _translate_to_russian(result.get("description"))
+        return result
 
     url = f"{SHIKIMORI_BASE}/api/animes/{shikimori_id}"
     try:
