@@ -1183,11 +1183,11 @@ async def manga_read_page(request):
             current_index = idx
             break
     if current_index is not None:
-        # chapters приходят от новых к старым (index 0 = самая новая)
-        if current_index + 1 < len(chapters):
-            prev_chapter = chapters[current_index + 1]
+        # chapters приходят от старых к новым (index 0 = самая старая/первая)
         if current_index - 1 >= 0:
-            next_chapter = chapters[current_index - 1]
+            prev_chapter = chapters[current_index - 1]
+        if current_index + 1 < len(chapters):
+            next_chapter = chapters[current_index + 1]
 
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
