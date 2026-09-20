@@ -53,6 +53,18 @@
 <script>(function(){var grid=document.getElementById("episodes-grid");var more=document.getElementById("episodes-more");if(!grid||!more)return;var moreLabel=more.querySelector("span");var visibleRows=5;function calc(){var item=grid.querySelector(".episode-pill");if(!item)return;var itemH=item.getBoundingClientRect().height;var cs=window.getComputedStyle(grid);var gap=parseFloat(cs.rowGap)||parseFloat(cs.gap)||0;var kids=grid.querySelectorAll(".episode-pill");var tops=[];for(var i=0;i<kids.length;i++){var t=Math.round(kids[i].getBoundingClientRect().top);if(tops.indexOf(t)===-1)tops.push(t);}var totalRows=tops.length;if(totalRows<=5){grid.style.maxHeight="";more.classList.remove("visible");return;}if(visibleRows>=totalRows){visibleRows=totalRows;grid.style.maxHeight="";grid.classList.remove("collapsed");moreLabel.textContent="Свернуть";more.classList.add("visible");more.classList.add("expanded");}else{var maxH=Math.round(itemH*visibleRows+gap*(visibleRows-1));grid.style.maxHeight=maxH+"px";grid.classList.add("collapsed");moreLabel.textContent="Далее";more.classList.add("visible");more.classList.remove("expanded");}}window.addEventListener("load",calc);if(document.readyState==="complete")calc();more.addEventListener("click",function(){if(more.classList.contains("expanded")){visibleRows=5;}else{visibleRows+=5;}calc();});var resizeTimer;window.addEventListener("resize",function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(calc,150);});})();</script>
 
 {% set seasons = info.related | selectattr("type", "equalto", "Сериал") | list %}
+{% if info.screenshots %}
+<section class="screenshots-section">
+  <h2>Кадры</h2>
+  <div class="screenshots-scroll">
+    {% for shot in info.screenshots %}
+    <a href="{{ shot }}" target="_blank" rel="noopener" class="shot-item">
+      <img src="{{ shot }}" alt="Кадр {{ loop.index }}" loading="lazy" decoding="async" draggable="false">
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 {% if seasons | length > 0 %}
 <section class="related-section">
   <h2>Сезоны</h2>
