@@ -178,9 +178,10 @@ async def discover(request):
         schedule_with_ids[day] = processed
     season_items = []
     for item in season:
-        anime_id = site_client.get_id_from_link(item.get("link", ""))
+        anime_id = item.get("id") or site_client.get_id_from_link(item.get("link", ""))
         if anime_id:
-            remember_link(anime_id, item.get("link", ""))
+            if item.get("link"):
+                remember_link(anime_id, item["link"])
             season_items.append({**item, "id": anime_id})
 
     return aiohttp_jinja2.render_template(
