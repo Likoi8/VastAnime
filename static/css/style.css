@@ -1592,3 +1592,8 @@ body.manga-reader-body .site-main {
   text-align: right;
 }
 .chapter-status { min-width: 92px; text-align: center; box-sizing: border-box; }
+
+.chapter-item-right { gap: 6px; }
+.chapter-status { min-width: 0; padding: 2px 7px; font-size: 11px; }
+.chapter-item-date { min-width: 0; font-size: 11px; }
+.chapter-item { padding: 9px 12px; gap: 6px; }
