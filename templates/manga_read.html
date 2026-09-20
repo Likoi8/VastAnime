@@ -22,7 +22,7 @@
   {% else %}
   <span class="manga-reader-nav-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Предыдущая</span></span>
   {% endif %}
-  <a class="manga-reader-nav-btn manga-reader-nav-title" href="/manga/{{ manga_id }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>К тайтлу</span></a>
+  <a class="manga-reader-nav-title" href="/manga/{{ manga_id }}">К тайтлу</a>
   {% if next_chapter %}
   <a class="manga-reader-nav-btn" aria-label="Глава" href="/manga/{{ manga_id }}/read/{{ next_chapter.volume }}/{{ next_chapter.number }}"><span>Следующая</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a>
   {% else %}
