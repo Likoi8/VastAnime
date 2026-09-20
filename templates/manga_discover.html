@@ -8,11 +8,11 @@
 {% block type_tab_manga_active %}active{% endblock %}
 {% block search_placeholder %}Поиск манги...{% endblock %}
 {% block content %}
-<section class="grid" id="manga-grid">
+<section class="feed" id="manga-grid">
   {% for item in updates %}
-  <a class="card" href="/manga/{{ item.id }}">
+  <a class="feed-card" href="/manga/{{ item.id }}">
     <img src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
-    <span class="card-title">{{ item.title }}</span>
+    <div class="feed-card-body"><div class="feed-card-title">{{ item.title }}</div></div>
   </a>
   {% endfor %}
 </section>

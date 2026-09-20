@@ -9,9 +9,9 @@
 
   function renderCard(r) {
     return `
-      <a class="card" href="/manga/${r.id}">
+      <a class="feed-card" href="/manga/${r.id}">
         <img src="${r.image || "/static/images/no-poster.svg"}" alt="${r.title}">
-        <span class="card-title">${r.title}</span>
+        <div class="feed-card-body"><div class="feed-card-title">${r.title}</div></div>
       </a>
     `;
   }
