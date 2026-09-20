@@ -1667,3 +1667,45 @@ body.manga-reader-body .site-main {
   font-weight: 700;
   margin: 28px 0 14px;
 }
+
+.title-row { display: flex; align-items: flex-start; gap: 14px; }
+.title-clamp {
+  flex: 1; min-width: 0; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.title-info-btn {
+  flex: 0 0 auto; width: 32px; height: 32px; padding: 0; margin-top: 2px;
+  background: none; border: 0; color: var(--text-muted); cursor: pointer;
+}
+.title-info-btn svg { width: 100%; height: 100%; }
+
+.title-sheet { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
+.title-sheet-backdrop {
+  position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55);
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.title-sheet-panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  max-height: 80vh; overflow-y: auto;
+  background: var(--bg-elevated); border-radius: 28px 28px 0 0;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.title-sheet.open { pointer-events: auto; }
+.title-sheet.open .title-sheet-backdrop { opacity: 1; }
+.title-sheet.open .title-sheet-panel { transform: translateY(0); }
+.title-sheet-handle { width: 40px; height: 4px; border-radius: 4px; background: var(--text-muted); opacity: 0.6; margin: 0 auto 18px; }
+.ts-field { margin-bottom: 18px; }
+.ts-label { display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.ts-copy { background: none; border: 0; padding: 0; width: 22px; height: 22px; color: var(--text-muted); cursor: pointer; }
+.ts-copy svg { width: 100%; height: 100%; }
+.ts-value { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+.ts-close {
+  width: 100%; padding: 14px; margin-top: 6px; border: 0; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+@media (min-width: 993px) {
+  .title-sheet-panel { left: 50%; right: auto; width: 520px; transform: translate(-50%, 100%); }
+  .title-sheet.open .title-sheet-panel { transform: translate(-50%, 0); }
+}
