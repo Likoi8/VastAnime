@@ -17,7 +17,54 @@
     <img class="anime-poster" src="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" alt="{{ info.rus_name or info.name }}">
   </div>
   <div class="anime-details">
-    <h1>{{ info.rus_name or info.name }}</h1>
+    <div class="title-row">
+      <button type="button" class="title-info-btn" id="title-info-btn" aria-label="Полное название"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+      <h1 class="title-clamp">{{ info.rus_name or info.name }}</h1>
+    </div>
+    <div class="title-sheet" id="title-sheet">
+      <div class="title-sheet-backdrop" data-close="1"></div>
+      <div class="title-sheet-panel">
+        <div class="title-sheet-handle"></div>
+        {% if info.rus_name %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Название</span><button type="button" class="ts-copy" data-copy="{{ info.rus_name }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ info.rus_name }}</div>
+        </div>
+        {% endif %}
+        {% if info.name and info.name != info.rus_name %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Оригинальное название</span><button type="button" class="ts-copy" data-copy="{{ info.name }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ info.name }}</div>
+        </div>
+        {% endif %}
+        {% set alt_joined = info.otherNames|join(', ') if info.otherNames is defined and info.otherNames else '' %}
+        {% if alt_joined %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Альтернативные названия</span><button type="button" class="ts-copy" data-copy="{{ alt_joined }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ alt_joined }}</div>
+        </div>
+        {% endif %}
+        <button type="button" class="ts-close" data-close="1">Закрыть</button>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var sheet = document.getElementById("title-sheet");
+      var btn = document.getElementById("title-info-btn");
+      if (!sheet || !btn) return;
+      document.body.appendChild(sheet);
+      var root = document.documentElement;
+      function openSheet() { sheet.classList.add("open"); root.classList.add("sheet-lock"); }
+      function closeSheet() { sheet.classList.remove("open"); root.classList.remove("sheet-lock"); }
+      btn.addEventListener("click", openSheet);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+      sheet.addEventListener("click", function (e) {
+        if (e.target.closest("[data-close]")) { closeSheet(); return; }
+        var c = e.target.closest(".ts-copy");
+        if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy || "");
+      });
+    })();
+    </script>
     {% set ch_total = (chapters|last).number if chapters else (info.chap_count or '') %}
       <div class="anime-meta-row">
 <button id="bookmark-btn" class="bookmark-btn" data-id="{{ manga_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
