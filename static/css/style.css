@@ -1474,3 +1474,6 @@ svg {
 .chapter-status { font-size: 12px; padding: 2px 8px; border-radius: 999px; }
 .chapter-status--reading { background: rgba(110, 50, 170, 0.35); color: #a878d8; }
 .chapter-status--read { background: rgba(236, 72, 190, 0.28); color: #ff8fe0; box-shadow: 0 0 8px rgba(236, 72, 190, 0.35); }
+
+.manga-reader-page { min-height: 60vh; }
+.manga-reader-page[complete], .manga-reader-page.loaded { min-height: 0; }

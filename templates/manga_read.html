@@ -43,20 +43,31 @@
     }).catch(function () {});
   }
   send('reading');
-  var imgs = document.querySelectorAll('.manga-reader-page');
+  var imgs = Array.prototype.slice.call(document.querySelectorAll('.manga-reader-page'));
   if (!imgs.length) return;
   var last = imgs[imgs.length - 1];
   var done = false;
-  var obs = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting && !done) {
-        done = true;
-        send('read');
-        obs.disconnect();
-      }
-    });
-  }, { threshold: 0.3 });
-  obs.observe(last);
+  var armedAt = Date.now();
+
+  function allLoaded() {
+    return imgs.every(function (i) { return i.complete && i.naturalHeight > 0; });
+  }
+  function atBottom() {
+    var r = last.getBoundingClientRect();
+    return r.height > 50 && r.top < window.innerHeight && r.bottom <= window.innerHeight + 200;
+  }
+  function check() {
+    if (done) return;
+    if (Date.now() - armedAt < 1500) return;
+    if (window.scrollY < 200) return;
+    if (allLoaded() && atBottom()) {
+      done = true;
+      send('read');
+      window.removeEventListener('scroll', check);
+    }
+  }
+  window.addEventListener('scroll', check, { passive: true });
+  imgs.forEach(function (i) { i.addEventListener('load', check); });
 })();
 </script>
 {% endif %}
