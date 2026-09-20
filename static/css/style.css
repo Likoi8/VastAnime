@@ -1477,3 +1477,23 @@ svg {
 
 .manga-reader-page { min-height: 60vh; }
 .manga-reader-page[complete], .manga-reader-page.loaded { min-height: 0; }
+
+.manga-reader-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.manga-reader-nav-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+@media (min-width: 993px) {
+  .manga-reader-nav {
+    justify-content: center;
+    gap: 16px;
+  }
+  .manga-reader-nav-btn {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 180px;
+    padding: 12px 24px;
+  }
+}

@@ -8,7 +8,7 @@
 {% block body_class %}manga-reader-body{% endblock %}
 {% block content %}
 <div class="manga-reader-header">
-  <a href="/manga/{{ manga_id }}" class="manga-reader-title-link">← К тайтлу</a>
+  <a href="/manga/{{ manga_id }}" class="manga-reader-title-link">К тайтлу</a>
   <span class="manga-reader-chapter-label">Том {{ volume }} · Глава {{ chapter }}</span>
 </div>
 <div class="manga-reader-pages">
@@ -18,14 +18,14 @@
 </div>
 <div class="manga-reader-nav">
   {% if prev_chapter %}
-  <a class="manga-reader-nav-btn" href="/manga/{{ manga_id }}/read/{{ prev_chapter.volume }}/{{ prev_chapter.number }}">← Предыдущая</a>
+  <a class="manga-reader-nav-btn" href="/manga/{{ manga_id }}/read/{{ prev_chapter.volume }}/{{ prev_chapter.number }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Предыдущая</span></a>
   {% else %}
-  <span class="manga-reader-nav-btn disabled">← Предыдущая</span>
+  <span class="manga-reader-nav-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Предыдущая</span></span>
   {% endif %}
   {% if next_chapter %}
-  <a class="manga-reader-nav-btn" href="/manga/{{ manga_id }}/read/{{ next_chapter.volume }}/{{ next_chapter.number }}">Следующая →</a>
+  <a class="manga-reader-nav-btn" href="/manga/{{ manga_id }}/read/{{ next_chapter.volume }}/{{ next_chapter.number }}"><span>Следующая</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a>
   {% else %}
-  <span class="manga-reader-nav-btn disabled">Следующая →</span>
+  <span class="manga-reader-nav-btn disabled"><span>Следующая</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></span>
   {% endif %}
 </div>
 {% endblock %}
