@@ -1709,3 +1709,34 @@ body.manga-reader-body .site-main {
   .title-sheet-panel { left: 50%; right: auto; width: 520px; transform: translate(-50%, 100%); }
   .title-sheet.open .title-sheet-panel { transform: translate(-50%, 0); }
 }
+
+.title-info-btn { width: 22px; height: 22px; margin-top: 4px; }
+.title-row { gap: 10px; }
+
+@media (max-width: 992px) {
+  .title-sheet { z-index: 300; }
+  .title-sheet-panel {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    max-height: calc(100vh - 72px - env(safe-area-inset-bottom, 0px) - 40px);
+    border-radius: 28px;
+    margin: 0 8px;
+    padding-bottom: 20px;
+  }
+}
+
+.title-sheet { z-index: 10000; }
+@media (max-width: 992px) {
+  .title-sheet-panel {
+    bottom: 0;
+    margin: 0;
+    border-radius: 28px 28px 0 0;
+    max-height: 80vh;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    overscroll-behavior: contain;
+  }
+}
+html.sheet-lock, html.sheet-lock body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.title-sheet-backdrop { touch-action: none; }

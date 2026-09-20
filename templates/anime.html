@@ -47,9 +47,13 @@
   var sheet = document.getElementById("title-sheet");
   var btn = document.getElementById("title-info-btn");
   if (!sheet || !btn) return;
-  btn.addEventListener("click", function () { sheet.classList.add("open"); });
+  var root = document.documentElement;
+  function openSheet() { sheet.classList.add("open"); root.classList.add("sheet-lock"); }
+  function closeSheet() { sheet.classList.remove("open"); root.classList.remove("sheet-lock"); }
+  btn.addEventListener("click", openSheet);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
   sheet.addEventListener("click", function (e) {
-    if (e.target.closest("[data-close]")) { sheet.classList.remove("open"); return; }
+    if (e.target.closest("[data-close]")) { closeSheet(); return; }
     var c = e.target.closest(".ts-copy");
     if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy || "");
   });
