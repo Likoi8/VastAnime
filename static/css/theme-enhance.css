@@ -332,3 +332,22 @@ body.is-home .site-main {
   border: 0;
 }
 
+
+/* Firefox: артефакты на hover в "Сезонных новинках" */
+.card-season {
+  border: 0;
+  background: transparent;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+.card-season img {
+  display: block;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  outline: 1px solid transparent;
+  image-rendering: auto;
+  clip-path: inset(0 round var(--radius));
+}
+@media (hover: hover) {
+  .card-season:hover { transform: translate3d(0, -6px, 0); }
+}
