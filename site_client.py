@@ -225,8 +225,10 @@ async def get_info(anime_id_or_link: str) -> dict:
                 episodes_total = int(episodes_total)
             except (TypeError, ValueError):
                 episodes_total = 0
-            screenshots = []
-            if episodes_total > 0:
+            screenshots = await asyncio.to_thread(
+                shikimori_client.get_screenshots, anime_id_or_link[2:], 8
+            )
+            if not screenshots and episodes_total > 0:
                 sample_count = min(5, episodes_total)
                 step = max(1, episodes_total // sample_count)
                 sample_eps = list(range(1, episodes_total + 1, step))[:sample_count]
