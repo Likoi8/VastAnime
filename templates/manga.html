@@ -17,7 +17,7 @@
   </div>
   <div class="anime-details">
     <h1>{{ info.rus_name or info.name }}</h1>
-    {% set ch_total = info.chap_count or (chapters|length) %}
+    {% set ch_total = (chapters|last).number if chapters else (info.chap_count or '') %}
       <div class="anime-meta-row">
 <button id="bookmark-btn" class="bookmark-btn" data-id="{{ manga_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
