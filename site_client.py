@@ -795,7 +795,7 @@ async def get_kodik_poster_for_anime(anime_id: str) -> Optional[str]:
 
 _updates_pages = {}  # page -> (ts, data)
 _UPDATES_PAGES_TTL = 600
-_UPDATES_PAGES_MAX = 40
+_UPDATES_PAGES_MAX = 6
 _updates_pages_lock = asyncio.Lock()
 
 

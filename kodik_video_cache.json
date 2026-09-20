@@ -285,7 +285,7 @@
   },
   "54688": {
     "has_video": false,
-    "checked_at_ts": 1789588562.557882
+    "checked_at_ts": 1789927812.770412
   },
   "10075": {
     "has_video": true,
@@ -309,7 +309,7 @@
   },
   "12979": {
     "has_video": true,
-    "checked_at_ts": 1789588563.61651
+    "checked_at_ts": 1789927813.94292
   },
   "16870": {
     "has_video": true,
@@ -337,7 +337,7 @@
   },
   "1735": {
     "has_video": true,
-    "checked_at_ts": 1789588564.1112037
+    "checked_at_ts": 1789927814.4755268
   },
   "51678": {
     "has_video": true,
@@ -2621,11 +2621,11 @@
   },
   "54687": {
     "has_video": false,
-    "checked_at_ts": 1789588562.8700898
+    "checked_at_ts": 1789927813.0893528
   },
   "34566": {
     "has_video": true,
-    "checked_at_ts": 1789588563.439368
+    "checked_at_ts": 1789927813.8173492
   },
   "59349": {
     "has_video": true,
@@ -3630,5 +3630,233 @@
   "31374": {
     "has_video": true,
     "checked_at_ts": 1789927796.4592721
+  },
+  "4654": {
+    "has_video": true,
+    "checked_at_ts": 1789927802.0756378
+  },
+  "934": {
+    "has_video": true,
+    "checked_at_ts": 1789927802.7020824
+  },
+  "249": {
+    "has_video": true,
+    "checked_at_ts": 1789927802.7643836
+  },
+  "28927": {
+    "has_video": true,
+    "checked_at_ts": 1789927802.9758809
+  },
+  "24703": {
+    "has_video": true,
+    "checked_at_ts": 1789927803.2082353
+  },
+  "18507": {
+    "has_video": true,
+    "checked_at_ts": 1789927803.5682364
+  },
+  "1210": {
+    "has_video": true,
+    "checked_at_ts": 1789927803.9019399
+  },
+  "37086": {
+    "has_video": true,
+    "checked_at_ts": 1789927804.2097664
+  },
+  "2236": {
+    "has_video": true,
+    "checked_at_ts": 1789927804.5048423
+  },
+  "49918": {
+    "has_video": true,
+    "checked_at_ts": 1789927804.7645814
+  },
+  "6": {
+    "has_video": true,
+    "checked_at_ts": 1789927805.0223088
+  },
+  "24415": {
+    "has_video": true,
+    "checked_at_ts": 1789927805.3157053
+  },
+  "37982": {
+    "has_video": true,
+    "checked_at_ts": 1789927805.604162
+  },
+  "32542": {
+    "has_video": true,
+    "checked_at_ts": 1789927805.9172976
+  },
+  "437": {
+    "has_video": true,
+    "checked_at_ts": 1789927806.2983656
+  },
+  "39547": {
+    "has_video": true,
+    "checked_at_ts": 1789927806.5159805
+  },
+  "36882": {
+    "has_video": true,
+    "checked_at_ts": 1789927806.8506937
+  },
+  "13125": {
+    "has_video": true,
+    "checked_at_ts": 1789927807.1242106
+  },
+  "33506": {
+    "has_video": true,
+    "checked_at_ts": 1789927807.4569402
+  },
+  "51096": {
+    "has_video": true,
+    "checked_at_ts": 1789927807.7891483
+  },
+  "36896": {
+    "has_video": true,
+    "checked_at_ts": 1789927808.0223546
+  },
+  "58567": {
+    "has_video": true,
+    "checked_at_ts": 1789927808.4029877
+  },
+  "52211": {
+    "has_video": true,
+    "checked_at_ts": 1789927808.6562724
+  },
+  "31859": {
+    "has_video": true,
+    "checked_at_ts": 1789927808.9852688
+  },
+  "63824": {
+    "has_video": false,
+    "checked_at_ts": 1789927820.929176
+  },
+  "57658": {
+    "has_video": true,
+    "checked_at_ts": 1789927821.4695413
+  },
+  "51009": {
+    "has_video": true,
+    "checked_at_ts": 1789927821.7666473
+  },
+  "28825": {
+    "has_video": true,
+    "checked_at_ts": 1789927873.810192
+  },
+  "31646": {
+    "has_video": true,
+    "checked_at_ts": 1789927874.1795192
+  },
+  "28297": {
+    "has_video": true,
+    "checked_at_ts": 1789927874.3777745
+  },
+  "32949": {
+    "has_video": true,
+    "checked_at_ts": 1789927874.6888697
+  },
+  "37987": {
+    "has_video": true,
+    "checked_at_ts": 1789927874.9583673
+  },
+  "14713": {
+    "has_video": true,
+    "checked_at_ts": 1789927875.2915316
+  },
+  "1482": {
+    "has_video": true,
+    "checked_at_ts": 1789927875.6588833
+  },
+  "2993": {
+    "has_video": true,
+    "checked_at_ts": 1789927875.9589071
+  },
+  "34612": {
+    "has_video": true,
+    "checked_at_ts": 1789927876.1916592
+  },
+  "11633": {
+    "has_video": true,
+    "checked_at_ts": 1789927876.476052
+  },
+  "1818": {
+    "has_video": true,
+    "checked_at_ts": 1789927876.7654958
+  },
+  "17074": {
+    "has_video": true,
+    "checked_at_ts": 1789927877.0698762
+  },
+  "790": {
+    "has_video": true,
+    "checked_at_ts": 1789927877.3737023
+  },
+  "23277": {
+    "has_video": true,
+    "checked_at_ts": 1789927877.687419
+  },
+  "2476": {
+    "has_video": true,
+    "checked_at_ts": 1789927877.969338
+  },
+  "33489": {
+    "has_video": true,
+    "checked_at_ts": 1789927878.295338
+  },
+  "41467": {
+    "has_video": true,
+    "checked_at_ts": 1789927878.5729077
+  },
+  "43": {
+    "has_video": true,
+    "checked_at_ts": 1789927878.8759892
+  },
+  "34542": {
+    "has_video": true,
+    "checked_at_ts": 1789927879.202042
+  },
+  "30544": {
+    "has_video": true,
+    "checked_at_ts": 1789927879.495487
+  },
+  "34618": {
+    "has_video": true,
+    "checked_at_ts": 1789927879.8226967
+  },
+  "16742": {
+    "has_video": true,
+    "checked_at_ts": 1789927880.11931
+  },
+  "22147": {
+    "has_video": true,
+    "checked_at_ts": 1789927880.4376032
+  },
+  "38659": {
+    "has_video": true,
+    "checked_at_ts": 1789927880.670261
+  },
+  "263": {
+    "has_video": true,
+    "checked_at_ts": 1789927881.0195885
+  },
+  "1887": {
+    "has_video": true,
+    "checked_at_ts": 1789927881.346569
+  },
+  "37141": {
+    "has_video": true,
+    "checked_at_ts": 1789927881.6047428
+  },
+  "14289": {
+    "has_video": true,
+    "checked_at_ts": 1789927881.928074
+  },
+  "23281": {
+    "has_video": true,
+    "checked_at_ts": 1789927882.1938303
+  },
+  "39534": {
+    "has_video": true,
+    "checked_at_ts": 1789927882.5072222
   }
 }

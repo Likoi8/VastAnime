@@ -1074,12 +1074,15 @@ def _format_manga_update_item(item):
     }
 
 
+ANIME_SCROLL_LAST_PAGE = 6  # страницы 5-6 = до 100 догружаемых карточек
+
+
 async def api_anime_updates(request):
     try:
         page = int(request.query.get("page", "5"))
     except ValueError:
         page = 5
-    page = max(1, min(page, 40))
+    page = max(1, min(page, ANIME_SCROLL_LAST_PAGE))
     try:
         raw = await site_client.get_updates_page(page)
     except Exception as e:
@@ -1089,7 +1092,7 @@ async def api_anime_updates(request):
         "score": u.get("score"), "episodes": u.get("episodes_total"),
     } for u in raw if u.get("id")]
     return web.json_response(
-        {"items": items, "page": page, "has_more": page < 40 and len(raw) > 0},
+        {"items": items, "page": page, "has_more": page < ANIME_SCROLL_LAST_PAGE and len(raw) > 0},
         headers={"Cache-Control": "public, max-age=300"},
     )
 

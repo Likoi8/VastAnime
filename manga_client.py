@@ -246,7 +246,7 @@ def get_latest_updates(limit=None):
 
 _updates_pages_cache = {}  # page(int) -> (timestamp, data)
 _updates_pages_lock = threading.Lock()
-UPDATES_MAX_PAGE = 50
+UPDATES_MAX_PAGE = 10
 
 
 def get_latest_updates_page(page=1):
