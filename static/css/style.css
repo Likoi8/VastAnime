@@ -1565,3 +1565,7 @@ body.manga-reader-body .site-main {
 
 .manga-reader-nav { justify-content: center; }
 .manga-reader-nav-btn { flex: 0 0 auto; }
+
+@media (max-width: 992px) {
+  .manga-reader-nav-title { display: none; }
+}
