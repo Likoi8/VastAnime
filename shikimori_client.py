@@ -377,6 +377,7 @@ def get_shikimori_info(shikimori_id):
         fallback_desc = _fetch_anilist_description(data.get("myanimelist_id"))
         if fallback_desc and len(fallback_desc) > len(description or ""):
             description = fallback_desc
+    description = _translate_to_russian(description)
     result = {
         "title": data.get("russian") or data.get("name"),
         "original_title": data.get("name"),
@@ -397,6 +398,76 @@ def _strip_html(text):
     if not text:
         return ""
     return re.sub(r"<[^>]+>", "", text).strip()
+
+
+_TRANSLATE_CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate_cache.json")
+_translate_cache = {}  # text_hash -> translated(str)
+_translate_cache_lock = threading.Lock()
+
+
+def _load_translate_cache():
+    global _translate_cache
+    try:
+        with open(_TRANSLATE_CACHE_FILE, "r", encoding="utf-8") as f:
+            _translate_cache = json.load(f)
+    except Exception:
+        _translate_cache = {}
+
+
+def _save_translate_cache():
+    try:
+        with open(_TRANSLATE_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(_translate_cache, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"[shikimori_client] failed to save translate cache: {e}", flush=True)
+
+
+_load_translate_cache()
+
+
+def _has_cyrillic(text):
+    return bool(re.search(r"[а-яА-ЯёЁ]", text or ""))
+
+
+def _translate_to_russian(text):
+    """Переводит текст на русский через Groq (openai/gpt-oss-120b).
+    Вызывается только когда текст не содержит кириллицы. Кэшируется
+    на диске по хэшу исходного текста, чтобы не переводить повторно."""
+    if not text or _has_cyrillic(text):
+        return text
+    key = str(hash(text))
+    with _translate_cache_lock:
+        cached = _translate_cache.get(key)
+    if cached:
+        return cached
+    try:
+        from config import GROQ_API_KEY
+        resp = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": "openai/gpt-oss-120b",
+                "messages": [
+                    {"role": "system", "content": "Переведи текст пользователя на русский язык. Ответь только переводом, без пояснений и кавычек."},
+                    {"role": "user", "content": text},
+                ],
+                "temperature": 0.3,
+                "max_tokens": 800,
+            },
+            timeout=20,
+        )
+        if resp.status_code == 200:
+            translated = resp.json()["choices"][0]["message"]["content"].strip()
+            if translated:
+                with _translate_cache_lock:
+                    _translate_cache[key] = translated
+                    _save_translate_cache()
+                return translated
+        else:
+            print(f"[shikimori_client] groq translate non-200: {resp.status_code}: {resp.text[:200]}", flush=True)
+    except Exception as e:
+        print(f"[shikimori_client] groq translate failed: {e}", flush=True)
+    return text
 import json
 import os
 import threading
