@@ -37,7 +37,11 @@
     {% for ch in chapters %}
     <a class="chapter-item" href="/manga/{{ manga_id }}/read/{{ ch.volume }}/{{ ch.number }}">
       <span>Том {{ ch.volume }} · Глава {{ ch.number }}</span>
-      {% if ch.release_date %}<span class="chapter-item-date">{{ ch.release_date }}</span>{% endif %}
+      <span class="chapter-item-right">
+          {% set st = progress.get((ch.volume|string) ~ ':' ~ (ch.number|string)) if progress else None %}
+          {% if st %}<span class="chapter-status chapter-status--{{ st }}">{{ 'Прочитано' if st == 'read' else 'Читаю' }}</span>{% endif %}
+          {% if ch.release_date %}<span class="chapter-item-date">{{ ch.release_date }}</span>{% endif %}
+        </span>
     </a>
     {% endfor %}
   </div>

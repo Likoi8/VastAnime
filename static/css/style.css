@@ -1469,3 +1469,8 @@ svg {
 }
 
 .grid > .manga-empty { grid-column: 1 / -1; }
+
+.chapter-item-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.chapter-status { font-size: 12px; padding: 2px 8px; border-radius: 999px; }
+.chapter-status--reading { background: rgba(255, 193, 7, 0.18); color: #ffca4a; }
+.chapter-status--read { background: rgba(76, 175, 80, 0.18); color: #6fd07a; }

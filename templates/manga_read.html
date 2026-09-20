@@ -29,3 +29,35 @@
   {% endif %}
 </div>
 {% endblock %}
+
+{% block scripts %}
+{% if current_user %}
+<script>
+(function () {
+  function send(status) {
+    fetch('/api/manga-progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({ manga_id: {{ manga_id|tojson }}, volume: {{ volume|tojson }}, chapter: {{ chapter|tojson }}, status: status })
+    }).catch(function () {});
+  }
+  send('reading');
+  var imgs = document.querySelectorAll('.manga-reader-page');
+  if (!imgs.length) return;
+  var last = imgs[imgs.length - 1];
+  var done = false;
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting && !done) {
+        done = true;
+        send('read');
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  obs.observe(last);
+})();
+</script>
+{% endif %}
+{% endblock %}

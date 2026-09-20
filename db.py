@@ -88,6 +88,17 @@ CREATE TABLE IF NOT EXISTS anime_ratings (
 async def init_db():
     async with aiosqlite.connect(DB_PATH) as db:
         await db.executescript(_SCHEMA)
+        await db.executescript("""
+CREATE TABLE IF NOT EXISTS manga_progress (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    manga_id TEXT NOT NULL,
+    volume TEXT NOT NULL,
+    chapter TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('reading','read')),
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, manga_id, volume, chapter)
+);
+""")
         try:
             await db.execute(
                 "ALTER TABLE bookmarks ADD COLUMN status TEXT NOT NULL DEFAULT 'watching'"
@@ -496,3 +507,25 @@ async def clear_email_code(user_id: int):
         await db.execute("DELETE FROM email_codes WHERE user_id = ?", (user_id,))
         await db.commit()
 
+
+async def set_manga_progress(user_id: int, manga_id: str, volume: str, chapter: str, status: str):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO manga_progress (user_id, manga_id, volume, chapter, status) "
+            "VALUES (?, ?, ?, ?, ?) "
+            "ON CONFLICT(user_id, manga_id, volume, chapter) DO UPDATE SET "
+            "status = CASE WHEN manga_progress.status = 'read' THEN 'read' ELSE excluded.status END, "
+            "updated_at = CURRENT_TIMESTAMP",
+            (user_id, manga_id, str(volume), str(chapter), status),
+        )
+        await db.commit()
+
+
+async def get_manga_progress(user_id: int, manga_id: str) -> dict:
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            "SELECT volume, chapter, status FROM manga_progress WHERE user_id = ? AND manga_id = ?",
+            (user_id, manga_id),
+        )
+        rows = await cursor.fetchall()
+        return {f"{r[0]}:{r[1]}": r[2] for r in rows}

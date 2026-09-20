@@ -1151,10 +1151,29 @@ async def manga_page(request):
         branches = ch.get("branches") or []
         ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
     current_user = await auth.current_user(request)
+    progress = await db.get_manga_progress(current_user["id"], manga_id) if current_user else {}
     return aiohttp_jinja2.render_template(
         "manga.html", request,
-        {"manga_id": manga_id, "info": info, "chapters": chapters, "current_user": current_user},
+        {"manga_id": manga_id, "info": info, "chapters": chapters, "current_user": current_user, "progress": progress},
     )
+
+
+async def api_manga_progress(request):
+    user = await auth.current_user(request)
+    if not user:
+        return web.json_response({"error": "not_authenticated"}, status=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return web.json_response({"error": "invalid_json"}, status=400)
+    manga_id = str(body.get("manga_id") or "")
+    volume = str(body.get("volume") if body.get("volume") is not None else "")
+    chapter = str(body.get("chapter") if body.get("chapter") is not None else "")
+    status = body.get("status")
+    if not manga_id or not chapter or status not in ("reading", "read"):
+        return web.json_response({"error": "invalid_params"}, status=400)
+    await db.set_manga_progress(user["id"], manga_id, volume, chapter, status)
+    return web.json_response({"ok": True})
 
 
 async def manga_read_page(request):
@@ -1247,6 +1266,7 @@ def create_app():
     app.router.add_get("/api/manga/{manga_id}", api_manga_info)
     app.router.add_get("/manga/{manga_id}", manga_page)
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
+    app.router.add_post("/api/manga-progress", api_manga_progress)
     app.router.add_get("/manga-img/{encoded}", manga_img_proxy)
     app.router.add_get("/api/updates", api_updates)
     app.router.add_get("/bookmarks", bookmarks_page)
