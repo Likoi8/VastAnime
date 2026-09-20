@@ -1639,3 +1639,8 @@ body.manga-reader-body .site-main {
   display: block;
 }
 @media (min-width: 993px) { .shot-item img { height: 180px; } }
+
+@media (max-width: 992px) {
+  .shot-item img { height: 90px; }
+  .screenshots-scroll { gap: 8px; }
+}
