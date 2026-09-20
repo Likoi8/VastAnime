@@ -1754,3 +1754,9 @@ html.sheet-lock, html.sheet-lock body {
 @media (max-width: 992px) {
   .shot-item img { height: 110px; }
 }
+
+.seasons-scroll--compact .card { flex: 0 0 140px; }
+@media (min-width: 993px) {
+  .seasons-scroll--compact .card { flex: 0 0 200px; }
+}
+.seasons-scroll--compact .card-title { font-size: 13px; }
