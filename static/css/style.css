@@ -1740,3 +1740,6 @@ html.sheet-lock, html.sheet-lock body {
   overscroll-behavior: none;
 }
 .title-sheet-backdrop { touch-action: none; }
+
+.title-sheet { visibility: hidden; transition: visibility 0s linear 0.3s; }
+.title-sheet.open { visibility: visible; transition-delay: 0s; }

@@ -47,6 +47,7 @@
   var sheet = document.getElementById("title-sheet");
   var btn = document.getElementById("title-info-btn");
   if (!sheet || !btn) return;
+  document.body.appendChild(sheet);
   var root = document.documentElement;
   function openSheet() { sheet.classList.add("open"); root.classList.add("sheet-lock"); }
   function closeSheet() { sheet.classList.remove("open"); root.classList.remove("sheet-lock"); }
