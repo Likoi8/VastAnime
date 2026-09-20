@@ -4110,5 +4110,53 @@
   "53316": {
     "has_video": false,
     "checked_at_ts": 1789935619.8927665
+  },
+  "5469": {
+    "has_video": false,
+    "checked_at_ts": 1789935950.2518167
+  },
+  "4379": {
+    "has_video": false,
+    "checked_at_ts": 1789935950.5647788
+  },
+  "379": {
+    "has_video": true,
+    "checked_at_ts": 1789935951.040631
+  },
+  "12031": {
+    "has_video": true,
+    "checked_at_ts": 1789935951.3851173
+  },
+  "53973": {
+    "has_video": false,
+    "checked_at_ts": 1789935951.481292
+  },
+  "59119": {
+    "has_video": false,
+    "checked_at_ts": 1789935951.7807584
+  },
+  "17389": {
+    "has_video": true,
+    "checked_at_ts": 1789935952.2151985
+  },
+  "1572": {
+    "has_video": false,
+    "checked_at_ts": 1789935952.3656583
+  },
+  "4400": {
+    "has_video": false,
+    "checked_at_ts": 1789935952.6815343
+  },
+  "4544": {
+    "has_video": false,
+    "checked_at_ts": 1789935952.9830163
+  },
+  "13047": {
+    "has_video": true,
+    "checked_at_ts": 1789935953.4391239
+  },
+  "21513": {
+    "has_video": false,
+    "checked_at_ts": 1789935953.579951
   }
 }
