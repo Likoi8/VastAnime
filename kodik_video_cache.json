@@ -481,7 +481,7 @@
   },
   "121": {
     "has_video": true,
-    "checked_at_ts": 1787588330.5946286
+    "checked_at_ts": 1789927776.5330305
   },
   "10842": {
     "has_video": false,
@@ -3546,5 +3546,89 @@
   "50602": {
     "has_video": true,
     "checked_at_ts": 1789927656.082413
+  },
+  "30015": {
+    "has_video": true,
+    "checked_at_ts": 1789927702.1018915
+  },
+  "223": {
+    "has_video": true,
+    "checked_at_ts": 1789927702.5042672
+  },
+  "17895": {
+    "has_video": true,
+    "checked_at_ts": 1789927702.755572
+  },
+  "38826": {
+    "has_video": false,
+    "checked_at_ts": 1789927702.964002
+  },
+  "35073": {
+    "has_video": true,
+    "checked_at_ts": 1789927703.309248
+  },
+  "51019": {
+    "has_video": true,
+    "checked_at_ts": 1789927703.6520019
+  },
+  "5680": {
+    "has_video": true,
+    "checked_at_ts": 1789927703.893876
+  },
+  "43608": {
+    "has_video": true,
+    "checked_at_ts": 1789927704.2651193
+  },
+  "889": {
+    "has_video": true,
+    "checked_at_ts": 1789927704.793622
+  },
+  "14513": {
+    "has_video": true,
+    "checked_at_ts": 1789927704.8120644
+  },
+  "42310": {
+    "has_video": true,
+    "checked_at_ts": 1789927705.173383
+  },
+  "49387": {
+    "has_video": true,
+    "checked_at_ts": 1789927750.1610878
+  },
+  "40356": {
+    "has_video": true,
+    "checked_at_ts": 1789927750.3895178
+  },
+  "2966": {
+    "has_video": true,
+    "checked_at_ts": 1789927750.7122858
+  },
+  "1195": {
+    "has_video": true,
+    "checked_at_ts": 1789927750.9906495
+  },
+  "50172": {
+    "has_video": true,
+    "checked_at_ts": 1789927751.2681203
+  },
+  "40028": {
+    "has_video": true,
+    "checked_at_ts": 1789927795.1762412
+  },
+  "38524": {
+    "has_video": true,
+    "checked_at_ts": 1789927795.491609
+  },
+  "35760": {
+    "has_video": true,
+    "checked_at_ts": 1789927795.7522833
+  },
+  "25777": {
+    "has_video": true,
+    "checked_at_ts": 1789927796.0547948
+  },
+  "31374": {
+    "has_video": true,
+    "checked_at_ts": 1789927796.4592721
   }
 }
