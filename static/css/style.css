@@ -1522,3 +1522,8 @@ svg {
   .manga-reader-nav-btn:last-child { right: 24px; }
   .manga-reader-nav-btn:not(.disabled):hover { border-color: var(--accent); }
 }
+
+body.manga-reader-body .site-main {
+  animation: none;
+  transform: none;
+}
