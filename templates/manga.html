@@ -8,9 +8,9 @@
 {% block type_tab_manga_active %}active{% endblock %}
 {% block header %}{% endblock %}
 {% block content %}
-<button class="back-btn" onclick="history.back()" aria-label="Назад">
+<a class="back-btn" href="/manga" aria-label="Назад к списку манги">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-</button>
+</a>
 <section class="anime-card">
   <div class="anime-poster-wrap">
     <img class="anime-poster" src="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" alt="{{ info.rus_name or info.name }}">
