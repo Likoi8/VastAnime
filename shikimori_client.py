@@ -429,46 +429,90 @@ def _has_cyrillic(text):
     return bool(re.search(r"[а-яА-ЯёЁ]", text or ""))
 
 
-def _translate_to_russian(text):
-    """Переводит текст на русский через Groq (openai/gpt-oss-120b).
-    Вызывается только когда текст не содержит кириллицы. Кэшируется
-    на диске по хэшу исходного текста, чтобы не переводить повторно."""
-    if not text or _has_cyrillic(text):
-        return text
-    key = str(hash(text))
-    with _translate_cache_lock:
-        cached = _translate_cache.get(key)
-    if cached:
-        return cached
-    try:
-        from config import GROQ_API_KEY
-        _groq_proxy = "socks5h://127.0.0.1:1080"
-        resp = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
-            json={
-                "model": "openai/gpt-oss-120b",
-                "messages": [
-                    {"role": "system", "content": "Переведи текст пользователя на русский язык. Ответь только переводом, без пояснений и кавычек."},
-                    {"role": "user", "content": text},
-                ],
-                "temperature": 0.3,
-                "max_tokens": 800,
-            },
-            proxies={"http": _groq_proxy, "https": _groq_proxy},
-            timeout=15,
-        )
-        if resp.status_code == 200:
-            translated = resp.json()["choices"][0]["message"]["content"].strip()
+def _translate_key(text):
+    import hashlib
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _call_groq_translate(text):
+    """Синхронный HTTP-вызов к Groq. Вызывается только из фонового
+    воркера, никогда напрямую из пути рендера страницы."""
+    from config import GROQ_API_KEY
+    _groq_proxy = "socks5h://127.0.0.1:1080"
+    resp = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": "openai/gpt-oss-120b",
+            "messages": [
+                {"role": "system", "content": "Переведи текст пользователя на русский язык. Ответь только переводом текста, без пояснений, без кавычек и без вступительных фраз."},
+                {"role": "user", "content": text},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 800,
+        },
+        proxies={"http": _groq_proxy, "https": _groq_proxy},
+        timeout=15,
+    )
+    if resp.status_code == 200:
+        translated = resp.json()["choices"][0]["message"]["content"].strip()
+        return translated or None
+    print(f"[shikimori_client] groq translate non-200: {resp.status_code}: {resp.text[:200]}", flush=True)
+    return None
+
+
+import queue as _translate_queue_module
+_translate_queue = _translate_queue_module.Queue()
+_translate_worker_lock = _threading.Lock()
+_translate_worker_started = False
+_translate_inflight = set()
+_translate_inflight_lock = _threading.Lock()
+
+
+def _translate_worker():
+    while True:
+        text, key = _translate_queue.get()
+        try:
+            translated = _call_groq_translate(text)
             if translated:
                 with _translate_cache_lock:
                     _translate_cache[key] = translated
                     _save_translate_cache()
-                return translated
-        else:
-            print(f"[shikimori_client] groq translate non-200: {resp.status_code}: {resp.text[:200]}", flush=True)
-    except Exception as e:
-        print(f"[shikimori_client] groq translate failed: {e}", flush=True)
+        except Exception as e:
+            print(f"[shikimori_client] bg translate failed: {e}", flush=True)
+        finally:
+            with _translate_inflight_lock:
+                _translate_inflight.discard(key)
+            _translate_queue.task_done()
+
+
+def _ensure_translate_worker():
+    global _translate_worker_started
+    with _translate_worker_lock:
+        if not _translate_worker_started:
+            _threading.Thread(target=_translate_worker, daemon=True).start()
+            _translate_worker_started = True
+
+
+def _translate_to_russian(text):
+    """Возвращает перевод описания на русский, если он уже готов в
+    кэше. Если текста ещё нет в кэше — ставит его в фоновую очередь
+    на перевод через Groq и сразу возвращает оригинал (не блокирует
+    рендер страницы). При следующем заходе перевод уже будет готов."""
+    if not text or _has_cyrillic(text):
+        return text
+    key = _translate_key(text)
+    with _translate_cache_lock:
+        cached = _translate_cache.get(key)
+    if cached:
+        return cached
+    with _translate_inflight_lock:
+        already_queued = key in _translate_inflight
+        if not already_queued:
+            _translate_inflight.add(key)
+    if not already_queued:
+        _ensure_translate_worker()
+        _translate_queue.put((text, key))
     return text
 import json
 import os
