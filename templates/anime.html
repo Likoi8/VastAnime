@@ -14,11 +14,10 @@
   <div class="anime-details">
     <h1>{{ info.title }}</h1>
     <div class="anime-meta-row">
-      <p class="anime-meta">{{ info.status }} · {{ info.episodes }} эп. · ★ {{ info.score }}</p>
-      <span class="anime-meta-sep">·</span>
-      <button id="bookmark-btn" class="bookmark-btn" data-id="{{ anime_id }}" data-title="{{ info.title }}" data-image="{{ info.image or '/static/images/no-poster.svg' }}" data-episodes="{{ info.episodes }}" data-score="{{ info.score }}" aria-label="Добавить в закладки">
+<button id="bookmark-btn" class="bookmark-btn" data-id="{{ anime_id }}" data-title="{{ info.title }}" data-image="{{ info.image or '/static/images/no-poster.svg' }}" data-episodes="{{ info.episodes }}" data-score="{{ info.score }}" aria-label="Добавить в закладки">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
       </button>
+      <p class="anime-meta">{{ info.status }} · {{ info.episodes }} эп. · ★ {{ info.score }}</p>
     </div>
     <p class="anime-genres">
       {% for g in info.genres %}<span class="genre-pill">{{ g }}</span>{% endfor %}
