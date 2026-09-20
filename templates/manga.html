@@ -19,11 +19,10 @@
     <h1>{{ info.rus_name or info.name }}</h1>
     {% set ch_total = info.chap_count or (chapters|length) %}
       <div class="anime-meta-row">
-        <p class="anime-meta">{{ (info.type or {}).get('label', 'Манга') }}{% if (info.status or {}).get('label') %} · {{ info.status.label }}{% endif %}{% if ch_total %} · {{ ch_total }} гл.{% endif %}</p>
-        <span class="anime-meta-sep">·</span>
-        <button id="bookmark-btn" class="bookmark-btn" data-id="{{ manga_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
+<button id="bookmark-btn" class="bookmark-btn" data-id="{{ manga_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
         </button>
+        <p class="anime-meta">{{ (info.type or {}).get('label', 'Манга') }}{% if (info.status or {}).get('label') %} · {{ info.status.label }}{% endif %}{% if ch_total %} · {{ ch_total }} гл.{% endif %}</p>
       </div>
     <p class="anime-genres">
       {% for g in (info.genres or []) %}<span class="genre-pill">{{ g.name }}</span>{% endfor %}
