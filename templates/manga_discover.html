@@ -8,11 +8,11 @@
 {% block type_tab_manga_active %}active{% endblock %}
 {% block search_placeholder %}Поиск манги...{% endblock %}
 {% block content %}
-<section class="manga-grid" id="manga-grid">
+<section class="grid" id="manga-grid">
   {% for item in updates %}
-  <a class="manga-card" href="/manga/{{ item.id }}">
-    <img class="manga-cover" src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
-    <div class="manga-card-title">{{ item.title }}</div>
+  <a class="card" href="/manga/{{ item.id }}">
+    <img src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
+    <span class="card-title">{{ item.title }}</span>
   </a>
   {% endfor %}
 </section>
