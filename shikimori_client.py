@@ -402,14 +402,14 @@ def _strip_html(text):
 
 _TRANSLATE_CACHE_FILE = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "translate_cache.json")
 _translate_cache = {}  # text_hash -> translated(str)
-_translate_cache_lock = threading.Lock()
+_translate_cache_lock = _threading.Lock()
 
 
 def _load_translate_cache():
     global _translate_cache
     try:
         with open(_TRANSLATE_CACHE_FILE, "r", encoding="utf-8") as f:
-            _translate_cache = json.load(f)
+            _translate_cache = _json.load(f)
     except Exception:
         _translate_cache = {}
 
@@ -417,7 +417,7 @@ def _load_translate_cache():
 def _save_translate_cache():
     try:
         with open(_TRANSLATE_CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(_translate_cache, f, ensure_ascii=False)
+            _json.dump(_translate_cache, f, ensure_ascii=False)
     except Exception as e:
         print(f"[shikimori_client] failed to save translate cache: {e}", flush=True)
 
