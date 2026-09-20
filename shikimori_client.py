@@ -372,6 +372,11 @@ def get_shikimori_info(shikimori_id):
     # пустым, и фронтенд сам подставляет /static/images/no-poster.svg.
     image_url = _fetch_anilist_cover(data.get("myanimelist_id"))
 
+    description = _strip_html(data.get("description_html"))
+    if not description or len(description) < 100:
+        fallback_desc = _fetch_anilist_description(data.get("myanimelist_id"))
+        if fallback_desc and len(fallback_desc) > len(description or ""):
+            description = fallback_desc
     result = {
         "title": data.get("russian") or data.get("name"),
         "original_title": data.get("name"),
@@ -381,7 +386,7 @@ def get_shikimori_info(shikimori_id):
         "episodes": episodes,
         "score": data.get("score"),
         "genres": _map_genres(data.get("genres")),
-        "description": _strip_html(data.get("description_html")),
+        "description": description,
     }
 
     _cache[shikimori_id] = (time.time(), result)
@@ -509,6 +514,92 @@ query($id: Int) {
 _anilist_neg = {}  # key -> время (epoch), до которого AniList не трогаем
 _ANILIST_NEG_404_TTL = 6 * 3600
 _ANILIST_NEG_429_TTL = 60
+
+
+_ANILIST_DESC_CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "anilist_desc_cache.json")
+_anilist_desc_cache = {}  # mal_id(str) -> description(str)|None
+_anilist_desc_cache_lock = threading.Lock()
+
+
+def _load_anilist_desc_cache():
+    global _anilist_desc_cache
+    try:
+        with open(_ANILIST_DESC_CACHE_FILE, "r", encoding="utf-8") as f:
+            _anilist_desc_cache = json.load(f)
+    except Exception:
+        _anilist_desc_cache = {}
+
+
+def _save_anilist_desc_cache():
+    try:
+        with open(_ANILIST_DESC_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(_anilist_desc_cache, f)
+    except Exception as e:
+        print(f"[shikimori_client] failed to save anilist desc cache: {e}", flush=True)
+
+
+_load_anilist_desc_cache()
+
+
+_ANILIST_DESC_QUERY = """
+query($id: Int) {
+  Media(idMal: $id, type: ANIME) {
+    description(asHtml: false)
+  }
+}
+"""
+
+
+def _fetch_anilist_description(mal_id):
+    """Возвращает описание с AniList по MyAnimeList id, или None.
+    Используется как резервный источник, если у Shikimori описание
+    пустое или слишком короткое. Троттлинг разделяет общий лимит
+    с _fetch_anilist_cover через _anilist_rate_lock."""
+    global _anilist_last_call
+    if not mal_id:
+        return None
+    key = str(mal_id)
+    with _anilist_desc_cache_lock:
+        cached = _anilist_desc_cache.get(key, "___MISSING___")
+    if cached != "___MISSING___":
+        return cached
+    if _anilist_neg.get(key, 0) > time.time() or _anilist_neg.get("__all__", 0) > time.time():
+        return None
+    with _anilist_rate_lock:
+        now = time.time()
+        wait = _ANILIST_MIN_INTERVAL - (now - _anilist_last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _anilist_last_call = time.time()
+        result = None
+        try:
+            resp = requests.post(
+                "https://graphql.anilist.co",
+                json={"query": _ANILIST_DESC_QUERY, "variables": {"id": int(mal_id)}},
+                headers={"Content-Type": "application/json"},
+                timeout=8,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                media = (data.get("data") or {}).get("Media")
+                if media:
+                    result = _strip_html(media.get("description"))
+            else:
+                print(
+                    f"[shikimori_client] anilist desc non-200 for mal_id={mal_id}: {resp.status_code}",
+                    flush=True,
+                )
+                if resp.status_code == 404:
+                    _anilist_neg[key] = time.time() + _ANILIST_NEG_404_TTL
+                elif resp.status_code == 429:
+                    _anilist_neg["__all__"] = time.time() + _ANILIST_NEG_429_TTL
+        except Exception as e:
+            print(f"[shikimori_client] anilist desc fetch failed for mal_id={mal_id}: {e}", flush=True)
+    if result is not None:
+        with _anilist_desc_cache_lock:
+            _anilist_desc_cache[key] = result
+            _save_anilist_desc_cache()
+    return result
 
 
 def _fetch_anilist_cover(mal_id):
