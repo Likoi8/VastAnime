@@ -112,6 +112,18 @@ async def get_voices(shikimori_id: str) -> tuple[list[Translation], Optional[int
         for t in info.get("translations", [])
     ]
     series_count = info.get("series_count") or None
+    if translations:
+        ends = []
+        for t in translations:
+            rng = t.series_range
+            if isinstance(rng, (list, tuple)) and rng:
+                try:
+                    ends.append(int(rng[-1]))
+                except (TypeError, ValueError):
+                    pass
+        best = max(ends) if ends else 0
+        if not series_count or series_count < best:
+            series_count = best or 1  # фильм: одна серия
     result = (translations, series_count)
     _voices_cache[cache_key] = {"data": result, "ts": time.time()}
     return result
