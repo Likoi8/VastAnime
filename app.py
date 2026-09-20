@@ -842,7 +842,7 @@ async def css_version_processor(request):
 
 async def js_version_processor(request):
     versions = {}
-    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js", "manga-search.js"):
+    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js", "manga-search.js", "manga-scroll.js", "anime-scroll.js"):
         js_path = os.path.join(BASE_DIR, "static", "js", name)
         try:
             versions[name] = int(os.path.getmtime(js_path))
@@ -1112,11 +1112,20 @@ async def manga_discover_page(request):
 
 async def api_manga_updates(request):
     try:
-        raw_updates = await asyncio.to_thread(manga_client.get_latest_updates, 30)
+        page = int(request.query.get("page", "1"))
+    except ValueError:
+        page = 1
+    page = max(1, min(page, manga_client.UPDATES_MAX_PAGE))
+    try:
+        raw_updates = await asyncio.to_thread(manga_client.get_latest_updates_page, page)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
     updates = [u for u in (_format_manga_update_item(i) for i in raw_updates) if u]
-    return web.json_response({"results": updates})
+    has_more = bool(raw_updates) and page < manga_client.UPDATES_MAX_PAGE
+    return web.json_response(
+        {"results": updates, "items": updates, "page": page, "has_more": has_more},
+        headers={"Cache-Control": "public, max-age=300"},
+    )
 
 
 async def api_manga_search(request):
