@@ -242,3 +242,27 @@ def get_latest_updates(limit=None):
         _updates_cache["data"] = data
         _updates_cache["ts"] = time.time()
         return data[:limit] if limit else data
+
+
+_updates_pages_cache = {}  # page(int) -> (timestamp, data)
+_updates_pages_lock = threading.Lock()
+UPDATES_MAX_PAGE = 50
+
+
+def get_latest_updates_page(page=1):
+    """Одна страница последних обновлений (кэш 5 минут на страницу)."""
+    page = max(1, min(int(page), UPDATES_MAX_PAGE))
+    with _updates_pages_lock:
+        cached = _cached(_updates_pages_cache, page, UPDATES_CACHE_TTL)
+        if cached is not None:
+            return cached
+        resp = requests.get(
+            f"{MANGALIB_API_BASE}/api/latest-updates",
+            params={"site_id[]": MANGALIB_SITE_ID, "page": page},
+            headers=HEADERS,
+            timeout=10,
+        )
+        resp.raise_for_status()
+        data = resp.json().get("data", [])
+        _store(_updates_pages_cache, page, data)
+        return data
