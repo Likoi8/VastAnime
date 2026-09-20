@@ -1597,3 +1597,17 @@ body.manga-reader-body .site-main {
 .chapter-status { min-width: 0; padding: 2px 7px; font-size: 11px; }
 .chapter-item-date { min-width: 0; font-size: 11px; }
 .chapter-item { padding: 9px 12px; gap: 6px; }
+
+@media (hover: none) {
+  .card:active:not(.touch-active),
+  .feed-card:active:not(.touch-active),
+  .manga-card:active:not(.touch-active),
+  .chapter-item:active:not(.touch-active) {
+    transform: none;
+    border-color: var(--border);
+  }
+}
+@media (max-width: 992px) {
+  html, body { scrollbar-width: none; -ms-overflow-style: none; }
+  ::-webkit-scrollbar { display: none; width: 0; height: 0; }
+}
