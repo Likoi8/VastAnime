@@ -442,6 +442,7 @@ def _translate_to_russian(text):
         return cached
     try:
         from config import GROQ_API_KEY
+        _groq_proxy = "socks5h://127.0.0.1:1080"
         resp = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
@@ -454,7 +455,8 @@ def _translate_to_russian(text):
                 "temperature": 0.3,
                 "max_tokens": 800,
             },
-            timeout=20,
+            proxies={"http": _groq_proxy, "https": _groq_proxy},
+            timeout=15,
         )
         if resp.status_code == 200:
             translated = resp.json()["choices"][0]["message"]["content"].strip()
