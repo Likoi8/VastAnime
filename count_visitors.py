@@ -13,11 +13,11 @@ async def main():
     async with aiosqlite.connect(DB_PATH) as conn:
         if hours is not None:
             since = (datetime.utcnow() - timedelta(hours=hours)).strftime("%Y-%m-%d %H:%M:%S")
-            where = "WHERE created_at >= ?"
+            where = "WHERE created_at >= ? AND ip NOT IN (SELECT ip FROM bot_ips)"
             params = (since,)
             label = f"за последние {hours} ч."
         else:
-            where = ""
+            where = "WHERE ip NOT IN (SELECT ip FROM bot_ips)"
             params = ()
             label = "за всё время"
 

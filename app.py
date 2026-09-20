@@ -871,6 +871,8 @@ async def _start_cache_warmer(app):
     # старте сервера - только терялся при остановке. Грузим на старт.
     links = await db.get_all_anime_links()
     ANIME_LINKS.update(links)
+    await db.init_bot_table()
+    BOT_IPS.update(await db.load_bot_ips())
     app["cache_warmer_task"] = asyncio.create_task(site_client.warm_caches_forever())
     app["popular_warmer_task"] = asyncio.create_task(site_client.warm_popular_titles_forever())
     app["discovery_warmer_task"] = asyncio.create_task(site_client.warm_random_discovery_forever())
@@ -882,6 +884,109 @@ async def _stop_cache_warmer(app):
         task = app.get(key)
         if task:
             task.cancel()
+
+
+import time as _time
+import ipaddress as _ipaddr
+from collections import deque as _deque
+
+BOT_IPS = {}          # ip -> (время окончания, уровень "limit"|"block")
+_HITS = {}            # ip -> метки времени запросов за 60 с
+_TITLES = {}          # ip -> (время, путь) запросов страниц тайтлов за 10 мин
+STATIC_SEEN = {}      # ip -> время последней загрузки статики/картинок
+FLAG_RATE = 100       # запросов/мин -> мягкий уровень
+BLOCK_RATE = 300      # запросов/мин -> жёсткий уровень
+CRAWL_DISTINCT = 40   # разных страниц тайтлов за минуту
+NO_STATIC_TITLES = 60 # страниц тайтлов за 10 мин без единой загрузки статики
+BOT_LIMIT = 15        # разрешено запросов/мин для помеченных
+LIMIT_TTL = 6 * 3600
+BLOCK_TTL = 24 * 3600
+OWN_IPS = {"127.0.0.1", "::1", "85.174.187.87"}
+TRUSTED_NETS = [_ipaddr.ip_network(n) for n in ("91.238.98.0/23",)]
+GOOD_BOTS = ("googlebot", "yandex", "bingbot")
+SCRIPT_UA = ("python-requests", "python-urllib", "aiohttp", "httpx", "scrapy", "go-http-client",
+             "curl/", "wget", "libwww", "java/", "node-fetch", "axios", "headlesschrome",
+             "phantomjs", "selenium", "puppeteer")
+TITLE_PREFIXES = ("/anime/", "/watch/", "/manga/")
+GUARD_SKIP_PREFIXES = ("/yoomoney/", "/goto")
+GUARD_SKIP_PATHS = ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+
+
+def _is_trusted(ip):
+    if ip in OWN_IPS:
+        return True
+    try:
+        a = _ipaddr.ip_address(ip)
+    except ValueError:
+        return False
+    return any(a in n for n in TRUSTED_NETS)
+
+
+def _flag_bot(ip, level, reason, hits):
+    ttl = BLOCK_TTL if level == "block" else LIMIT_TTL
+    BOT_IPS[ip] = (_time.time() + ttl, level)
+    logging.warning("bot flagged: %s level=%s reason=%s hits/min=%s", ip, level, reason, hits)
+    asyncio.create_task(db.save_bot_ip(ip, reason, level, hits, ttl))
+
+
+@web.middleware
+async def bot_guard_middleware(request, handler):
+    path = request.path
+    ip = request.headers.get("X-Real-IP", request.remote)
+    if path.startswith(GUARD_SKIP_PREFIXES) or path in GUARD_SKIP_PATHS or _is_trusted(ip):
+        return await handler(request)
+    now = _time.time()
+    if path.startswith(("/static/", "/manga-img/")):
+        if len(STATIC_SEEN) > 20000:
+            STATIC_SEEN.clear()
+        STATIC_SEEN[ip] = now
+        return await handler(request)
+    ua = (request.headers.get("User-Agent") or "").lower()
+    if any(b in ua for b in GOOD_BOTS):
+        return await handler(request)
+
+    if len(_HITS) > 5000:
+        for k in [k for k, v in _HITS.items() if not v or now - v[-1] > 60]:
+            _HITS.pop(k, None)
+            _TITLES.pop(k, None)
+    dq = _HITS.setdefault(ip, _deque(maxlen=1000))
+    while dq and now - dq[0] > 60:
+        dq.popleft()
+    dq.append(now)
+    n = len(dq)
+
+    entry = BOT_IPS.get(ip)
+    if entry and entry[0] <= now:
+        BOT_IPS.pop(ip, None)
+        entry = None
+    level = entry[1] if entry else None
+
+    if level != "block":
+        if (not ua) or any(b in ua for b in SCRIPT_UA):
+            _flag_bot(ip, "block", "script-ua", n)
+        elif n > BLOCK_RATE:
+            _flag_bot(ip, "block", "rate-high", n)
+        elif level is None:
+            if n > FLAG_RATE:
+                _flag_bot(ip, "limit", "rate", n)
+            elif path.startswith(TITLE_PREFIXES):
+                tq = _TITLES.setdefault(ip, _deque(maxlen=400))
+                tq.append((now, path))
+                while tq and now - tq[0][0] > 600:
+                    tq.popleft()
+                recent = {pp for t, pp in tq if now - t <= 60}
+                if len(recent) > CRAWL_DISTINCT:
+                    _flag_bot(ip, "limit", "crawl", n)
+                elif len(tq) >= NO_STATIC_TITLES and now - STATIC_SEEN.get(ip, 0) > 1800:
+                    _flag_bot(ip, "limit", "no-static", n)
+
+    entry = BOT_IPS.get(ip)
+    if entry:
+        if entry[1] == "block":
+            return web.Response(status=403, text="Forbidden")
+        if n > BOT_LIMIT:
+            return web.Response(status=429, text="Too Many Requests", headers={"Retry-After": "60"})
+    return await handler(request)
 
 
 @web.middleware
@@ -897,7 +1002,7 @@ async def visit_middleware(request, handler):
             ua = (request.headers.get("User-Agent") or "").lower()
             skip_path = request.path.startswith(("/api/", "/manga-img/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
-            skip_ip = ip in ("127.0.0.1", "::1", "85.174.187.87")
+            skip_ip = ip in OWN_IPS or ip in BOT_IPS
             if not (skip_path or skip_ua or skip_ip):
                 ua = (request.headers.get("User-Agent") or "").lower()
             skip_path = request.path.startswith(("/api/", "/manga-img/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
@@ -1291,6 +1396,7 @@ def create_app():
             max_age=60 * 60 * 24 * 30,  # 30 дней
         ),
     )
+    app.middlewares.append(bot_guard_middleware)
     app.middlewares.append(visit_middleware)
     aiohttp_jinja2.setup(
         app,

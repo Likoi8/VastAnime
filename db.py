@@ -529,3 +529,29 @@ async def get_manga_progress(user_id: int, manga_id: str) -> dict:
         )
         rows = await cursor.fetchall()
         return {f"{r[0]}:{r[1]}": r[2] for r in rows}
+
+
+async def init_bot_table():
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            "CREATE TABLE IF NOT EXISTS bot_ips ("
+            "ip TEXT PRIMARY KEY, reason TEXT, level TEXT, hits_per_min INTEGER, "
+            "flagged_at REAL NOT NULL, expires_at REAL NOT NULL)"
+        )
+        await conn.commit()
+
+
+async def load_bot_ips() -> dict:
+    async with aiosqlite.connect(DB_PATH) as conn:
+        cur = await conn.execute("SELECT ip, expires_at, level FROM bot_ips WHERE expires_at > ?", (time.time(),))
+        return {r[0]: (r[1], r[2]) for r in await cur.fetchall()}
+
+
+async def save_bot_ip(ip: str, reason: str, level: str, hits: int, ttl: float):
+    now = time.time()
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute(
+            "INSERT OR REPLACE INTO bot_ips (ip, reason, level, hits_per_min, flagged_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (ip, reason, level, hits, now, now + ttl),
+        )
+        await conn.commit()
