@@ -1467,3 +1467,5 @@ svg {
   color: var(--text-muted);
   opacity: 0.5;
 }
+
+.grid > .manga-empty { grid-column: 1 / -1; }
