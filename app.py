@@ -929,8 +929,27 @@ def _flag_bot(ip, level, reason, hits):
     asyncio.create_task(db.save_bot_ip(ip, reason, level, hits, ttl))
 
 
+_BOT_SYNC_EVERY = 30
+_bot_sync_last = 0.0
+
+
+async def _sync_bot_ips():
+    try:
+        fresh = await db.load_bot_ips()
+    except Exception:
+        logging.exception("bot_ips sync failed")
+        return
+    BOT_IPS.clear()
+    BOT_IPS.update(fresh)
+
+
 @web.middleware
 async def bot_guard_middleware(request, handler):
+    global _bot_sync_last
+    _t = _time.time()
+    if _t - _bot_sync_last > _BOT_SYNC_EVERY:
+        _bot_sync_last = _t
+        asyncio.create_task(_sync_bot_ips())
     path = request.path
     ip = request.headers.get("X-Real-IP", request.remote)
     if path.startswith(GUARD_SKIP_PREFIXES) or path in GUARD_SKIP_PATHS or _is_trusted(ip):
