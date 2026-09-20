@@ -1543,3 +1543,12 @@ body.manga-reader-body .site-main {
 @media (min-width: 993px) {
   .manga-reader-nav-title { font-size: 22px; }
 }
+
+.manga-reader-nav { gap: 6px; }
+@media (min-width: 993px) {
+  .manga-reader-nav {
+    justify-content: center;
+    gap: 20px;
+    max-width: 640px;
+  }
+}
