@@ -1580,3 +1580,15 @@ body.manga-reader-body .site-main {
   .mr-back-desktop { display: none; }
   .mr-back-mobile { display: inline; }
 }
+
+.chapter-list { align-items: stretch; }
+.chapter-item { width: 100%; box-sizing: border-box; min-width: 0; }
+.chapter-item > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chapter-item-right { flex-shrink: 0; margin-left: auto; }
+
+.chapter-item-date {
+  font-variant-numeric: tabular-nums;
+  min-width: 5.6em;
+  text-align: right;
+}
+.chapter-status { min-width: 92px; text-align: center; box-sizing: border-box; }
