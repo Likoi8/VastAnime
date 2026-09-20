@@ -1497,3 +1497,28 @@ svg {
     padding: 12px 24px;
   }
 }
+
+@media (min-width: 993px) {
+  .manga-reader-nav {
+    position: static;
+    padding: 0;
+  }
+  .manga-reader-nav-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    width: 56px;
+    min-width: 0;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    flex: none;
+    backdrop-filter: blur(8px);
+  }
+  .manga-reader-nav-btn span { display: none; }
+  .manga-reader-nav-btn svg { width: 26px; height: 26px; }
+  .manga-reader-nav-btn:first-child { left: 24px; }
+  .manga-reader-nav-btn:last-child { right: 24px; }
+  .manga-reader-nav-btn:not(.disabled):hover { border-color: var(--accent); }
+}
