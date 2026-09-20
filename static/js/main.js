@@ -1,34 +1,28 @@
-// Общий JS, пока резерв
-
-
-// Фикс "залипающего" :active на мобильном Firefox (и других тач-браузерах):
-// CSS :active не всегда сбрасывается после touchend/touchcancel/скролла.
-// Управляем состоянием вручную через класс .touch-active.
+// Общий JS
+// Анимация нажатия карточек на тач-устройствах: только при коротком касании без сдвига.
 (function () {
+  if (!window.matchMedia("(hover: none)").matches) return;
+  var SEL = ".card, .feed-card, .manga-card, .chapter-item";
   var ACTIVE_CLASS = "touch-active";
-  var current = null;
-  var moved = false;
-
-  function clearActive() {
-    if (current) {
-      current.classList.remove(ACTIVE_CLASS);
-      current = null;
-    }
-  }
+  var el = null, t0 = 0, x0 = 0, y0 = 0, moved = false;
 
   document.addEventListener("touchstart", function (e) {
-    var card = e.target.closest(".card, .feed-card");
-    if (!card) return;
-    moved = false;
-    current = card;
-    card.classList.add(ACTIVE_CLASS);
+    el = e.target.closest ? e.target.closest(SEL) : null;
+    var t = e.touches[0];
+    t0 = Date.now(); x0 = t.clientX; y0 = t.clientY; moved = false;
   }, { passive: true });
 
-  document.addEventListener("touchmove", function () {
-    moved = true;
-    clearActive();
+  document.addEventListener("touchmove", function (e) {
+    var t = e.touches[0];
+    if (Math.abs(t.clientX - x0) > 8 || Math.abs(t.clientY - y0) > 8) moved = true;
   }, { passive: true });
 
-  document.addEventListener("touchend", clearActive, { passive: true });
-  document.addEventListener("touchcancel", clearActive, { passive: true });
+  document.addEventListener("touchend", function () {
+    if (!el || moved || Date.now() - t0 > 250) { el = null; return; }
+    var c = el; el = null;
+    c.classList.add(ACTIVE_CLASS);
+    setTimeout(function () { c.classList.remove(ACTIVE_CLASS); }, 220);
+  }, { passive: true });
+
+  document.addEventListener("touchcancel", function () { el = null; }, { passive: true });
 })();
