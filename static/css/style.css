@@ -1654,3 +1654,16 @@ body.manga-reader-body .site-main {
 @media (min-width: 993px) {
   .screenshots-section h2 { font-size: 16px; }
 }
+
+.screenshots-section h2 {
+  font-size: 18px;
+  font-weight: inherit;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+.episodes-section h2 { font-size: 22px; }
+
+.screenshots-section h2 {
+  font-weight: 700;
+  margin: 28px 0 14px;
+}
