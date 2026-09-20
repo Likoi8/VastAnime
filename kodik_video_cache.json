@@ -881,7 +881,7 @@
   },
   "37991": {
     "has_video": true,
-    "checked_at_ts": 1789822056.540894
+    "checked_at_ts": 1789928013.2293758
   },
   "31933": {
     "has_video": true,
@@ -889,15 +889,15 @@
   },
   "26055": {
     "has_video": true,
-    "checked_at_ts": 1789822056.8383598
+    "checked_at_ts": 1789928013.4775705
   },
   "20899": {
     "has_video": true,
-    "checked_at_ts": 1789822054.6680353
+    "checked_at_ts": 1789928013.818447
   },
   "14719": {
     "has_video": true,
-    "checked_at_ts": 1789822054.6730027
+    "checked_at_ts": 1789928014.137329
   },
   "53273": {
     "has_video": true,
@@ -3858,5 +3858,49 @@
   "39534": {
     "has_video": true,
     "checked_at_ts": 1789927882.5072222
+  },
+  "30654": {
+    "has_video": true,
+    "checked_at_ts": 1789927996.559358
+  },
+  "28891": {
+    "has_video": true,
+    "checked_at_ts": 1789927996.8434563
+  },
+  "30503": {
+    "has_video": true,
+    "checked_at_ts": 1789927997.154066
+  },
+  "38671": {
+    "has_video": true,
+    "checked_at_ts": 1789927997.4713767
+  },
+  "11617": {
+    "has_video": true,
+    "checked_at_ts": 1789927997.767925
+  },
+  "2167": {
+    "has_video": true,
+    "checked_at_ts": 1789927998.1263132
+  },
+  "40591": {
+    "has_video": true,
+    "checked_at_ts": 1789927998.3813362
+  },
+  "5081": {
+    "has_video": true,
+    "checked_at_ts": 1789927998.632164
+  },
+  "6746": {
+    "has_video": true,
+    "checked_at_ts": 1789927998.9688969
+  },
+  "12189": {
+    "has_video": true,
+    "checked_at_ts": 1789927999.54762
+  },
+  "52991": {
+    "has_video": true,
+    "checked_at_ts": 1789927999.6129818
   }
 }
