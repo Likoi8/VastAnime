@@ -14,8 +14,6 @@ html {
 }
 @media (min-width: 993px) {
   :root {
-    --bg: #1a1030;
-    --bg-elevated: #251a42;
   }
 }
 
