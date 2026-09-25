@@ -236,7 +236,7 @@ async def get_info(anime_id_or_link: str) -> dict:
                     *(get_kodik_episode_preview(anime_id_or_link, ep) for ep in sample_eps),
                     return_exceptions=True,
                 )
-                screenshots = [t for t in thumbs if isinstance(t, str) and t]
+                screenshots = list(dict.fromkeys(t for t in thumbs if isinstance(t, str) and t))
             return {
                 "title": shiki_data.get("title"),
                 "original_title": shiki_data.get("original_title"),
