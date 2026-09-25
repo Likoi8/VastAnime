@@ -206,7 +206,6 @@ if (document.readyState === "loading") {
     window.addEventListener("mouseup", function () {
       if (isDown) {
         isDown = false;
-        el.classList.remove("dragging");
       }
     });
     window.addEventListener("mousemove", function (e) {
