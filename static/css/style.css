@@ -613,6 +613,12 @@ a, button {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.screenshots-scroll { cursor: grab; }
+.screenshots-scroll.dragging {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
 .seasons-scroll.dragging {
   cursor: grabbing;
   user-select: none;

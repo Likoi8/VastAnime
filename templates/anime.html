@@ -182,6 +182,16 @@ if (document.readyState === "loading") {
     var startX = 0;
     var scrollLeft = 0;
     var moved = false;
+    var targetScroll = 0;
+    var raf = null;
+    function animate() {
+      el.scrollLeft += (targetScroll - el.scrollLeft) * 0.2;
+      if (Math.abs(targetScroll - el.scrollLeft) > 0.5) {
+        raf = requestAnimationFrame(animate);
+      } else {
+        raf = null;
+      }
+    }
     el.addEventListener("dragstart", function (e) { e.preventDefault(); });
     el.addEventListener("mousedown", function (e) {
       if (e.button !== 0) return;
@@ -191,6 +201,7 @@ if (document.readyState === "loading") {
       el.classList.add("dragging");
       startX = e.pageX;
       scrollLeft = el.scrollLeft;
+      targetScroll = el.scrollLeft;
     });
     window.addEventListener("mouseup", function () {
       if (isDown) {
@@ -203,7 +214,8 @@ if (document.readyState === "loading") {
       e.preventDefault();
       var dx = e.pageX - startX;
       if (Math.abs(dx) > 3) moved = true;
-      el.scrollLeft = scrollLeft - dx;
+      targetScroll = scrollLeft - dx;
+      if (!raf) raf = requestAnimationFrame(animate);
     });
     el.addEventListener("click", function (e) {
       if (moved) {
