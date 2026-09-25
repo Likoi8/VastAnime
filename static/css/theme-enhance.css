@@ -343,11 +343,7 @@ body.is-home .site-main {
 }
 .card-season img {
   display: block;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  outline: 1px solid transparent;
-  image-rendering: auto;
-  clip-path: inset(0 round var(--radius));
+  border-radius: var(--radius);
 }
 @media (hover: hover) {
   .card-season:hover { transform: translate3d(0, -6px, 0); }
