@@ -4,8 +4,8 @@
 
 :root {
   /* deeper, richer black-violet base */
-  --bg: #0c0a15;
-  --bg-elevated: #1a1526;
+  --bg: #0e0a1c;
+  --bg-elevated: #1c1430;
   --bg-elevated-2: #241c36;
   --text: #f1ecf9;
   --text-muted: #a89ac2;
@@ -20,7 +20,7 @@
 /* subtle fixed glow in the corners, no per-element decoration */
 body {
   background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(169,112,255,0.10), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(169,112,255,0.16), transparent 60%),
     radial-gradient(ellipse 700px 500px at 100% 10%, rgba(232,163,185,0.06), transparent 60%),
     var(--bg);
   background-attachment: fixed;
