@@ -355,7 +355,7 @@ body.is-home .site-main {
 
 @media (max-width: 992px) {
   :root {
-    --bg: #14101f;
-    --bg-elevated: #1c1730;
+    --bg: #0d0a17;
+    --bg-elevated: #161024;
   }
 }
