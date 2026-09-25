@@ -435,6 +435,44 @@ if (document.readyState === "loading") {
       if (triggered) e.preventDefault();
     });
   }
+  function attachSwipeReply(el, onSwipe) {
+    var startX = 0, startY = 0, tracking = false, fired = false;
+    var THRESHOLD = 56;
+    el.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      tracking = true;
+      fired = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      el.classList.remove('swiping');
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!tracking || fired) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      if (Math.abs(dy) > 30) { tracking = false; el.classList.remove('swiping'); return; }
+      if (dx < 0) {
+        var shift = Math.max(dx, -THRESHOLD);
+        el.style.transform = 'translateX(' + shift + 'px)';
+        el.classList.add('swiping');
+      }
+      if (dx <= -THRESHOLD) {
+        fired = true;
+        tracking = false;
+        el.style.transform = '';
+        el.classList.remove('swiping');
+        onSwipe();
+      }
+    });
+    var reset = function () {
+      tracking = false;
+      el.style.transform = '';
+      el.classList.remove('swiping');
+    };
+    el.addEventListener('pointerup', reset);
+    el.addEventListener('pointerleave', reset);
+    el.addEventListener('pointercancel', reset);
+  }
   function openCommentSheet(items) {
     closeCommentSheet();
     const backdrop = document.createElement('div');
@@ -518,16 +556,6 @@ if (document.readyState === "loading") {
 
     const actions = document.createElement('div');
     actions.className = 'comment-actions' + (isReply ? ' comment-actions-end' : '');
-    if (!isReply) {
-      const replyBtn = document.createElement('button');
-      replyBtn.type = 'button';
-      replyBtn.className = 'comment-action-btn';
-      replyBtn.textContent = 'Ответить';
-      replyBtn.addEventListener('click', function () {
-        openReplyForm(wrap, comment.id);
-      });
-      actions.appendChild(replyBtn);
-    }
     const likeBtn = document.createElement('button');
     likeBtn.type = 'button';
     likeBtn.className = 'comment-action-btn comment-like-btn' + (comment.liked_by_me ? ' active' : '');
@@ -572,6 +600,11 @@ if (document.readyState === "loading") {
     });
     actions.appendChild(likeBtn);
     wrap.appendChild(actions);
+    if (!isReply) {
+      attachSwipeReply(wrap, function () {
+        openReplyForm(wrap, comment.id);
+      });
+    }
     if (currentUserId !== null && comment.user_id === currentUserId) {
       wrap.classList.add('comment-owner');
       attachLongPress(wrap, function () {
