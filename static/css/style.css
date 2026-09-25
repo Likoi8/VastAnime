@@ -12,6 +12,12 @@ html {
   --border: #2c2836;
   --radius: 14px;
 }
+@media (min-width: 993px) {
+  :root {
+    --bg: #0e0c12;
+    --bg-elevated: #17151d;
+  }
+}
 
 * { box-sizing: border-box; }
 
