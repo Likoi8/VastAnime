@@ -665,6 +665,11 @@ if (document.readyState === "loading") {
       formRootEl.appendChild(link);
       return;
     }
+    const parentId = replyTarget ? replyTarget.id : null;
+    const form = buildCommentForm(function (text) {
+      return addComment(animeId, text, parentId);
+    }, null);
+    formRootEl.appendChild(form);
     if (replyTarget) {
       const banner = document.createElement('div');
       banner.className = 'comment-reply-banner';
@@ -682,13 +687,6 @@ if (document.readyState === "loading") {
       });
       banner.appendChild(cancelBtn);
       formRootEl.appendChild(banner);
-    }
-    const parentId = replyTarget ? replyTarget.id : null;
-    const form = buildCommentForm(function (text) {
-      return addComment(animeId, text, parentId);
-    }, null);
-    formRootEl.appendChild(form);
-    if (replyTarget) {
       const ta = form.querySelector('.comment-form-textarea');
       if (ta) ta.focus();
     }
