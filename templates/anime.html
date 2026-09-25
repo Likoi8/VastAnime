@@ -266,6 +266,7 @@ if (document.readyState === "loading") {
   const messageEl = document.getElementById('comments-message');
 
   let currentUserId = null;
+  let replyTarget = null;
 
   function showMessage(text) {
     messageEl.textContent = text;
@@ -330,6 +331,7 @@ if (document.readyState === "loading") {
         return;
       }
       textarea.value = '';
+      replyTarget = null;
       render();
     });
     pill.appendChild(submitBtn);
@@ -602,7 +604,7 @@ if (document.readyState === "loading") {
     wrap.appendChild(actions);
     if (!isReply) {
       attachSwipeReply(wrap, function () {
-        openReplyForm(wrap, comment.id);
+        startReply(comment);
       });
     }
     if (currentUserId !== null && comment.user_id === currentUserId) {
@@ -663,10 +665,42 @@ if (document.readyState === "loading") {
       formRootEl.appendChild(link);
       return;
     }
+    if (replyTarget) {
+      const banner = document.createElement('div');
+      banner.className = 'comment-reply-banner';
+      const label = document.createElement('span');
+      label.textContent = 'Ответ для ' + replyTarget.name;
+      banner.appendChild(label);
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'comment-reply-banner-cancel';
+      cancelBtn.setAttribute('aria-label', 'Отменить ответ');
+      cancelBtn.innerHTML = '&times;';
+      cancelBtn.addEventListener('click', function () {
+        replyTarget = null;
+        renderTopForm();
+      });
+      banner.appendChild(cancelBtn);
+      formRootEl.appendChild(banner);
+    }
+    const parentId = replyTarget ? replyTarget.id : null;
     const form = buildCommentForm(function (text) {
-      return addComment(animeId, text, null);
+      return addComment(animeId, text, parentId);
     }, null);
     formRootEl.appendChild(form);
+    if (replyTarget) {
+      const ta = form.querySelector('.comment-form-textarea');
+      if (ta) ta.focus();
+    }
+  }
+  function startReply(comment) {
+    if (currentUserId === null) {
+      window.location.href = '/auth/google';
+      return;
+    }
+    replyTarget = { id: comment.id, name: comment.user_name };
+    renderTopForm();
+    formRootEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   async function render() {
