@@ -22,6 +22,7 @@ body {
   background:
     radial-gradient(ellipse 900px 500px at 15% -10%, rgba(169,112,255,0.16), transparent 60%),
     radial-gradient(ellipse 700px 500px at 100% 10%, rgba(232,163,185,0.06), transparent 60%),
+    radial-gradient(ellipse 1200px 700px at 50% 120%, rgba(0,0,0,0.55), transparent 60%),
     var(--bg);
   background-attachment: fixed;
 }
