@@ -867,6 +867,28 @@ a, button {
 .comments-empty {
   color: var(--text-muted);
 }
+.comment-reply-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.comment-reply-banner-cancel {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
 .comment-form {
   display: flex;
   flex-direction: column;
