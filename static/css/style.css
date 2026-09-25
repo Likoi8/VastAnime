@@ -982,6 +982,9 @@ a, button {
   flex-direction: column;
   gap: 1rem;
 }
+.comment { touch-action: pan-y; will-change: transform; }
+.comment.swiping { transition: none; }
+.comment:not(.swiping) { transition: transform 0.2s ease; }
 .comment {
   border: 1px solid var(--border);
   border-radius: 10px;
