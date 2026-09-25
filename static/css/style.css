@@ -868,7 +868,6 @@ a, button {
   color: var(--text-muted);
 }
 .comment-reply-banner {
-  margin-left: calc(36px + 0.6rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
