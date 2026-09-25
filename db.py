@@ -340,6 +340,7 @@ async def get_comments(anime_id: str, current_user_id: int | None = None) -> lis
         rows = [dict(r) for r in await cursor.fetchall()]
 
     top_level = [r for r in rows if r["parent_id"] is None]
+    top_level.sort(key=lambda r: r["created_at"], reverse=True)
     replies_by_parent: dict[int, list[dict]] = {}
     for r in rows:
         if r["parent_id"] is not None:
