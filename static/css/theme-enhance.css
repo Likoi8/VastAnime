@@ -359,3 +359,9 @@ body.is-home .site-main {
     --bg-elevated: #161024;
   }
 }
+
+@media (min-width: 993px) {
+  .quick-actions {
+    display: none;
+  }
+}
