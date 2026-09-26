@@ -797,7 +797,7 @@
   },
   "59452": {
     "has_video": true,
-    "checked_at_ts": 1789994546.8894103
+    "checked_at_ts": 1790381521.219232
   },
   "49233": {
     "has_video": true,
@@ -4194,5 +4194,9 @@
   "65071": {
     "has_video": false,
     "checked_at_ts": 1790363486.378957
+  },
+  "65047": {
+    "has_video": false,
+    "checked_at_ts": 1790381520.778383
   }
 }
