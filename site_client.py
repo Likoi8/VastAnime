@@ -506,6 +506,7 @@ async def get_updates(force: bool = False) -> list[dict]:
 
 _schedule_cache = {"data": None, "ts": 0}
 _season_cache = {"data": None, "ts": 0}
+_season_lock = asyncio.Lock()
 _DISCOVER_CACHE_TTL = 300  # 5 минут
 
 
@@ -543,6 +544,16 @@ async def get_season() -> list[dict]:
     now = time.time()
     if _season_cache["data"] is not None and (now - _season_cache["ts"]) < _SEASON_CACHE_TTL:
         return _season_cache["data"]
+    async with _season_lock:
+        # повторная проверка после получения лока: пока мы ждали,
+        # другой вызов мог уже посчитать и закэшировать результат
+        now = time.time()
+        if _season_cache["data"] is not None and (now - _season_cache["ts"]) < _SEASON_CACHE_TTL:
+            return _season_cache["data"]
+        return await _compute_season()
+
+async def _compute_season() -> list[dict]:
+    now = time.time()
     POPULAR_COUNT = 14
     FRESH_COUNT = 6
     popular_rows = await db.get_popular_anime_by_views(days=7, limit=POPULAR_COUNT)
