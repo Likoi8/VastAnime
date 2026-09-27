@@ -4210,5 +4210,21 @@
   "40393": {
     "has_video": false,
     "checked_at_ts": 1790394527.4802969
+  },
+  "2490": {
+    "has_video": true,
+    "checked_at_ts": 1790547696.2073967
+  },
+  "2385": {
+    "has_video": true,
+    "checked_at_ts": 1790547696.5290072
+  },
+  "2386": {
+    "has_video": true,
+    "checked_at_ts": 1790547696.7893107
+  },
+  "5252": {
+    "has_video": true,
+    "checked_at_ts": 1790547697.4156334
   }
 }
