@@ -5,6 +5,20 @@ import time
 SHIKIMORI_BASE = "https://shikimori.io"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
+def _get_with_retry(url, params=None, timeout=5, max_retries=3):
+    """GET с ретраем и экспоненциальным backoff на 429 (rate limit Shikimori)."""
+    for attempt in range(max_retries):
+        resp = requests.get(url, params=params, headers=HEADERS, timeout=timeout)
+        if resp.status_code == 429:
+            wait = 2 ** attempt
+            print(f"[shikimori_client] 429, retry in {wait}s: {url}", flush=True)
+            time.sleep(wait)
+            continue
+        resp.raise_for_status()
+        return resp
+    resp.raise_for_status()
+    return resp
+
 STATUS_MAP = {
     "anons": "Анонс",
     "ongoing": "Онгоинг",
@@ -167,8 +181,7 @@ def get_fresh_anime(limit=20, exclude_ids=None):
         "limit": limit + len(exclude_ids),
     }
     try:
-        resp = requests.get(url, params=params, headers=HEADERS, timeout=8)
-        resp.raise_for_status()
+        resp = _get_with_retry(url, params=params, timeout=8)
         data = resp.json()
     except Exception as e:
         print(f"[shikimori_client] get_fresh_anime failed: {e}", flush=True)
@@ -260,8 +273,7 @@ def get_screenshots(shikimori_id, limit=5):
         return cached[1][:limit]
     url = f"{SHIKIMORI_BASE}/api/animes/{shikimori_id}/screenshots"
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=5)
-        resp.raise_for_status()
+        resp = _get_with_retry(url, timeout=5)
         data = resp.json()
     except Exception as e:
         print(f"[shikimori_client] failed to fetch screenshots {shikimori_id}: {e}", flush=True)
@@ -294,8 +306,7 @@ def get_franchise(shikimori_id):
     else:
         url = f"{SHIKIMORI_BASE}/api/animes/{shikimori_id}/franchise"
         try:
-            resp = requests.get(url, headers=HEADERS, timeout=5)
-            resp.raise_for_status()
+            resp = _get_with_retry(url, timeout=5)
             data = resp.json()
         except Exception as e:
             print(f"[shikimori_client] failed to fetch franchise {shikimori_id}: {e}", flush=True)
@@ -358,8 +369,7 @@ def get_shikimori_info(shikimori_id):
 
     url = f"{SHIKIMORI_BASE}/api/animes/{shikimori_id}"
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=5)
-        resp.raise_for_status()
+        resp = _get_with_retry(url, timeout=5)
         data = resp.json()
     except Exception as e:
         print(f"[shikimori_client] failed to fetch {shikimori_id}: {e}", flush=True)

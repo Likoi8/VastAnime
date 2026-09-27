@@ -547,20 +547,24 @@ async def get_season() -> list[dict]:
     FRESH_COUNT = 6
     popular_rows = await db.get_popular_anime_by_views(days=7, limit=POPULAR_COUNT)
     popular_ids_bare = {row["anime_id"][2:] for row in popular_rows if row["anime_id"].startswith("sh")}
+    _season_sem = asyncio.Semaphore(2)
     async def _fetch_popular_info(anime_id: str):
-        try:
-            info = await get_info(anime_id)
-            return {
-                "id": anime_id,
-                "title": info.get("title"),
-                "image": info.get("image"),
-                "rating": info.get("score"),
-                "year": info.get("year"),
-                "type": info.get("type"),
-                "status": info.get("status"),
-            }
-        except Exception:
-            return None
+        async with _season_sem:
+            try:
+                info = await get_info(anime_id)
+                return {
+                    "id": anime_id,
+                    "title": info.get("title"),
+                    "image": info.get("image"),
+                    "rating": info.get("score"),
+                    "year": info.get("year"),
+                    "type": info.get("type"),
+                    "status": info.get("status"),
+                }
+            except Exception:
+                return None
+            finally:
+                await asyncio.sleep(0.3)
     popular_infos = await asyncio.gather(
         *(_fetch_popular_info(row["anime_id"]) for row in popular_rows)
     )
