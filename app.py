@@ -226,9 +226,10 @@ async def api_discover(request):
     schedule = schedule_data.get("schedule", schedule_data) if isinstance(schedule_data, dict) else {}
     season_items = []
     for item in season:
-        anime_id = site_client.get_id_from_link(item.get("link", ""))
+        anime_id = item.get("id") or site_client.get_id_from_link(item.get("link", ""))
         if anime_id:
-            remember_link(anime_id, item.get("link", ""))
+            if item.get("link"):
+                remember_link(anime_id, item["link"])
             season_items.append({**item, "id": anime_id})
     schedule_with_ids = {}
     for day, day_items in schedule.items():
