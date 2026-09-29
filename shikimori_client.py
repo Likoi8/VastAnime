@@ -19,6 +19,28 @@ def _get_with_retry(url, params=None, timeout=5, max_retries=3):
     resp.raise_for_status()
     return resp
 
+import urllib.parse as _urllib_parse
+
+def _proxy_image_url(url):
+    """Оборачивает внешний URL картинки в наш прокси-эндпоинт /img-proxy/,
+    чтобы браузер грузил её с vastanime.ru, а не напрямую с внешнего CDN
+    (некоторые CDN — Shikimori/AniList — недоступны части провайдеров без VPN)."""
+    if not url:
+        return url
+    return "/img-proxy/" + _urllib_parse.quote(url, safe="")
+
+def fetch_external_image(url):
+    """Скачивает байты произвольной внешней картинки (для /img-proxy/) и
+    возвращает (content_bytes, content_type) или (None, None) при ошибке."""
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code != 200:
+            return None, None
+        return resp.content, resp.headers.get("Content-Type", "image/jpeg")
+    except Exception as e:
+        print(f"[shikimori_client] fetch_external_image failed: {e}", flush=True)
+        return None, None
+
 STATUS_MAP = {
     "anons": "Анонс",
     "ongoing": "Онгоинг",
@@ -145,7 +167,7 @@ def _full_image_url(image_field):
     path = image_field.get("original") or image_field.get("preview")
     if not path or "missing_" in path:
         return None
-    return f"{SHIKIMORI_BASE}{path}"
+    return _proxy_image_url(f"{SHIKIMORI_BASE}{path}")
 
 
 def _fetch_og_image(shikimori_url):
@@ -700,7 +722,7 @@ def _fetch_anilist_description(mal_id):
     with _anilist_desc_cache_lock:
         cached = _anilist_desc_cache.get(key, "___MISSING___")
     if cached != "___MISSING___":
-        return cached
+        return _proxy_image_url(cached)
     if _anilist_neg.get(key, 0) > time.time() or _anilist_neg.get("__all__", 0) > time.time():
         return None
     with _anilist_rate_lock:
@@ -794,7 +816,7 @@ def _fetch_anilist_cover(mal_id):
         with _anilist_cache_lock:
             _anilist_cache[key] = result
             _save_anilist_cache()
-    return result
+    return _proxy_image_url(result)
 
 
 _meta_bg_inflight = set()
