@@ -1816,3 +1816,11 @@ html.sheet-lock, html.sheet-lock body {
   .screenshots-scroll::-webkit-scrollbar { display: none; }
   .screenshots-scroll > * { flex: 0 0 auto; }
 }
+
+/* ПК: страница тайтла смещена левее (~2 см) */
+@media (min-width: 993px) {
+  body.page-anime main {
+    position: relative;
+    left: -75px;
+  }
+}
