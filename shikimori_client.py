@@ -300,7 +300,7 @@ def get_screenshots(shikimori_id, limit=5):
     except Exception as e:
         print(f"[shikimori_client] failed to fetch screenshots {shikimori_id}: {e}", flush=True)
         return []
-    urls = list(dict.fromkeys(f"{SHIKIMORI_BASE}{item.get('original') or item['preview']}" for item in data if item.get("original") or item.get("preview")))
+    urls = list(dict.fromkeys(_proxy_image_url(f"{SHIKIMORI_BASE}{item.get('original') or item['preview']}") for item in data if item.get("original") or item.get("preview")))
     _screenshots_cache[shikimori_id] = (time.time(), urls)
     return urls[:limit]
 
