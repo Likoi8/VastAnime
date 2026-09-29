@@ -956,7 +956,7 @@ async def bot_guard_middleware(request, handler):
     if path.startswith(GUARD_SKIP_PREFIXES) or path in GUARD_SKIP_PATHS or _is_trusted(ip):
         return await handler(request)
     now = _time.time()
-    if path.startswith(("/static/", "/manga-img/")):
+    if path.startswith(("/static/", "/manga-img/", "/img-proxy/")):
         if len(STATIC_SEEN) > 20000:
             STATIC_SEEN.clear()
         STATIC_SEEN[ip] = now
@@ -1387,6 +1387,46 @@ async def manga_read_page(request):
     )
 
 
+_IMG_PROXY_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "img_proxy_cache")
+os.makedirs(_IMG_PROXY_CACHE_DIR, exist_ok=True)
+def _img_proxy_cache_paths(url: str):
+    import hashlib
+    digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:32]
+    return os.path.join(_IMG_PROXY_CACHE_DIR, digest + ".bin"), os.path.join(_IMG_PROXY_CACHE_DIR, digest + ".ctype")
+async def img_proxy(request):
+    """Общий прокси для внешних обложек (AniList/Shikimori и т.д.) — отдаёт
+    картинку со своего домена, с диск-кэшем, чтобы браузер/приложение не
+    стучались напрямую в CDN, недоступные части провайдеров без VPN."""
+    from urllib.parse import unquote
+    encoded = request.match_info["encoded"]
+    original_url = unquote(encoded)
+    if not original_url.startswith("http"):
+        return web.Response(status=400, text="bad url")
+    data_path, ctype_path = _img_proxy_cache_paths(original_url)
+    if os.path.exists(data_path) and os.path.exists(ctype_path):
+        with open(data_path, "rb") as f:
+            data = f.read()
+        with open(ctype_path, "r") as f:
+            content_type = f.read().strip()
+    else:
+        data, content_type = await asyncio.to_thread(shikimori_client.fetch_external_image, original_url)
+        if data is None:
+            return web.Response(status=502, text="upstream error")
+        content_type = content_type or "image/jpeg"
+        try:
+            with open(data_path + ".tmp", "wb") as f:
+                f.write(data)
+            os.replace(data_path + ".tmp", data_path)
+            with open(ctype_path + ".tmp", "w") as f:
+                f.write(content_type)
+            os.replace(ctype_path + ".tmp", ctype_path)
+        except Exception:
+            pass
+    return web.Response(
+        body=data,
+        content_type=content_type,
+        headers={"Cache-Control": "public, max-age=2592000"},
+    )
 async def manga_img_proxy(request):
     from urllib.parse import unquote
     encoded = request.match_info["encoded"]
@@ -1438,6 +1478,7 @@ def create_app():
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
     app.router.add_post("/api/manga-progress", api_manga_progress)
     app.router.add_get("/manga-img/{encoded}", manga_img_proxy)
+    app.router.add_get("/img-proxy/{encoded}", img_proxy)
     app.router.add_get("/api/updates", api_updates)
     app.router.add_get("/bookmarks", bookmarks_page)
     app.router.add_get("/profile", profile_page)
