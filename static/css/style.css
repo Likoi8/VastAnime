@@ -1795,3 +1795,8 @@ html.sheet-lock, html.sheet-lock body {
   .seasons-scroll--compact .card { flex: 0 0 200px; }
 }
 .seasons-scroll--compact .card-title { font-size: 13px; }
+
+/* Мобильные: показываем только первые 8 кадров, на ПК - все */
+@media (max-width: 992px) {
+  .screenshots-scroll > *:nth-child(n+9) { display: none; }
+}
