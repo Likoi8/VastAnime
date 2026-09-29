@@ -1801,19 +1801,16 @@ html.sheet-lock, html.sheet-lock body {
   .screenshots-scroll > *:nth-child(n+9) { display: none; }
 }
 
-/* ПК: лента кадров на всю ширину окна, остальное - прокрутка */
+/* ПК: лента кадров начинается под заголовком, вправо до края окна */
 @media (min-width: 993px) {
   .screenshots-scroll {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: calc(50% - 50vw);
-    padding-left: calc(50vw - 50%);
+    margin-left: 0;
+    padding-left: 0;
+    margin-right: calc(50% - 50vw);
     padding-right: calc(50vw - 50%);
-    box-sizing: border-box;
-    scroll-padding-left: calc(50vw - 50%);
     scrollbar-width: none;
   }
   .screenshots-scroll::-webkit-scrollbar { display: none; }
