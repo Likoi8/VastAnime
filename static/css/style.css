@@ -1800,3 +1800,22 @@ html.sheet-lock, html.sheet-lock body {
 @media (max-width: 992px) {
   .screenshots-scroll > *:nth-child(n+9) { display: none; }
 }
+
+/* ПК: лента кадров на всю ширину окна, остальное - прокрутка */
+@media (min-width: 993px) {
+  .screenshots-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding-left: calc(50vw - 50%);
+    padding-right: calc(50vw - 50%);
+    box-sizing: border-box;
+    scroll-padding-left: calc(50vw - 50%);
+    scrollbar-width: none;
+  }
+  .screenshots-scroll::-webkit-scrollbar { display: none; }
+  .screenshots-scroll > * { flex: 0 0 auto; }
+}
