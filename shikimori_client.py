@@ -722,7 +722,7 @@ def _fetch_anilist_description(mal_id):
     with _anilist_desc_cache_lock:
         cached = _anilist_desc_cache.get(key, "___MISSING___")
     if cached != "___MISSING___":
-        return _proxy_image_url(cached)
+        return cached
     if _anilist_neg.get(key, 0) > time.time() or _anilist_neg.get("__all__", 0) > time.time():
         return None
     with _anilist_rate_lock:
@@ -775,7 +775,7 @@ def _fetch_anilist_cover(mal_id):
     with _anilist_cache_lock:
         cached = _anilist_cache.get(key, "___MISSING___")
     if cached != "___MISSING___":
-        return cached
+        return _proxy_image_url(cached)
     if _anilist_neg.get(key, 0) > time.time() or _anilist_neg.get("__all__", 0) > time.time():
         return None
 
