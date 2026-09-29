@@ -1824,3 +1824,28 @@ html.sheet-lock, html.sheet-lock body {
     left: -75px;
   }
 }
+
+/* ПК: лента сезонов как у кадров - от заголовка вправо до края окна */
+@media (min-width: 993px) {
+  .seasons-scroll,
+  .seasons-scroll.seasons-scroll--compact {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-left: 0;
+    padding-left: 0;
+    margin-right: calc(50% - 50vw);
+    padding-right: calc(50vw - 50%);
+    scrollbar-width: none;
+  }
+  .seasons-scroll::-webkit-scrollbar { display: none; }
+  .seasons-scroll .card,
+  .seasons-scroll--compact .card { flex: 0 0 180px; }
+}
+
+/* ПК: больше отступ между сериями и кадрами */
+@media (min-width: 993px) {
+  .screenshots-section {
+    margin-top: 40px;
+  }
+}
