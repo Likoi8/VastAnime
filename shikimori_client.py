@@ -29,11 +29,40 @@ def _proxy_image_url(url):
         return url
     return "/img-proxy/" + _urllib_parse.quote(url, safe="")
 
+_REFERER_HOSTS = (
+    "cdnlibs.org",
+    "imglib",
+    "mangalib.me",
+    "mangalib.org",
+)
+
+
+def image_headers_for(url):
+    """CDN манги (cdnlibs/imglib) отдают картинки только с Referer —
+    без него 403. Для остальных источников остаёмся общий HEADERS."""
+    from urllib.parse import urlsplit
+    try:
+        host = (urlsplit(url).hostname or "").lower()
+    except Exception:
+        host = ""
+    if any(d in host for d in _REFERER_HOSTS):
+        return {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+            ),
+            "Referer": "https://mangalib.me/",
+            "Origin": "https://mangalib.me",
+            "Accept": "image/avif,image/webp,image/png,image/jpeg,image/*,*/*;q=0.8",
+        }
+    return HEADERS
+
+
 def fetch_external_image(url):
     """Скачивает байты произвольной внешней картинки (для /img-proxy/) и
     возвращает (content_bytes, content_type) или (None, None) при ошибке."""
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=10)
+        resp = requests.get(url, headers=image_headers_for(url), timeout=10)
         if resp.status_code != 200:
             return None, None
         return resp.content, resp.headers.get("Content-Type", "image/jpeg")

@@ -1446,8 +1446,90 @@ async def manga_img_proxy(request):
     )
 
 
+_ABS_IMAGE_KEYS = {
+    "image", "images", "image_url", "poster", "poster_url", "cover", "covers",
+    "background", "avatar", "avatar_url", "screenshot", "screenshots",
+    "thumbnail", "thumb", "preview",
+}
+# внутри этих ключей URL лежит в вложенных словарях (cover.default/md, background.url...)
+_ABS_IMAGE_SUBTREES = {"image", "images", "cover", "covers", "background", "screenshots"}
+# CDN, которые недоступны/закрыты hotlink-защитой — гоняем через /img-proxy/
+_PROXY_IMAGE_HOSTS = (
+    "cdnlibs.org", "imglib", "mangalib.me",
+    "anilist.co", "shikimori.io", "shikimori.one", "shikimori.me",
+)
+
+
+def _abs_image_url(url):
+    """Приводит URL картинки к виду, пригодному для аппа/браузера:
+      - относительный путь (/img-proxy/..., /static/...) -> SITE_URL + путь
+      - внешний CDN из белого списка -> через наш /img-proxy/
+      - остальные внешние URL не трогаем
+    """
+    from urllib.parse import quote, urlsplit
+    if not url or not isinstance(url, str):
+        return url
+    if url.startswith(SITE_URL):
+        return url
+    if url.startswith("//"):
+        url = "https:" + url
+    if url.startswith("/"):
+        return SITE_URL + url
+    if url.startswith("http"):
+        try:
+            host = (urlsplit(url).hostname or "").lower()
+        except Exception:
+            host = ""
+        if any(d in host for d in _PROXY_IMAGE_HOSTS):
+            return SITE_URL + "/img-proxy/" + quote(url, safe="")
+    return url
+
+
+def _fix_images(obj, key=None, forced=False):
+    """Рекурсивно нормализует все поля-картинки в JSON-ответе API."""
+    if isinstance(obj, dict):
+        sub_forced = forced or key in _ABS_IMAGE_SUBTREES
+        return {k: _fix_images(v, k, sub_forced) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_fix_images(v, key, forced) for v in obj]
+    if isinstance(obj, str) and (forced or key in _ABS_IMAGE_KEYS):
+        return _abs_image_url(obj)
+    return obj
+
+
+@web.middleware
+async def api_absolute_images_middleware(request, handler):
+    """Для всех /api/* JSON-ответов отдаём картинки
+    абсолютными URL — иначе Android-приложение (Coil) не может их загрузить."""
+    import json as _json
+    resp = await handler(request)
+    if not request.path.startswith("/api/"):
+        return resp
+    if "application/json" not in (resp.content_type or ""):
+        return resp
+    body = getattr(resp, "body", None)
+    if not body:
+        return resp
+    try:
+        payload = _json.loads(body)
+    except Exception:
+        return resp
+    try:
+        fixed = _fix_images(payload)
+    except Exception:
+        return resp
+    if fixed == payload:
+        return resp
+    new_resp = web.json_response(fixed, status=resp.status)
+    for k, v in resp.headers.items():
+        if k.lower() in ("content-type", "content-length"):
+            continue
+        new_resp.headers[k] = v
+    return new_resp
+
+
 def create_app():
-    app = web.Application(middlewares=[error_middleware])
+    app = web.Application(middlewares=[error_middleware, api_absolute_images_middleware])
     aiohttp_session.setup(
         app,
         EncryptedCookieStorage(
