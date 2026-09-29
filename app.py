@@ -1020,12 +1020,12 @@ async def visit_middleware(request, handler):
                 session["visitor_id"] = visitor_id
             ip = request.headers.get("X-Real-IP", request.remote)
             ua = (request.headers.get("User-Agent") or "").lower()
-            skip_path = request.path.startswith(("/api/", "/manga-img/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+            skip_path = request.path.startswith(("/api/", "/manga-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
             skip_ip = ip in OWN_IPS or ip in BOT_IPS
             if not (skip_path or skip_ua or skip_ip):
                 ua = (request.headers.get("User-Agent") or "").lower()
-            skip_path = request.path.startswith(("/api/", "/manga-img/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+            skip_path = request.path.startswith(("/api/", "/manga-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
             skip_ip = ip in ("127.0.0.1", "::1", "85.174.187.87")
             if not (skip_path or skip_ua or skip_ip):
