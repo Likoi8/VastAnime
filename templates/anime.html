@@ -141,11 +141,40 @@ function _initDescriptionToggle() {
   var desc = document.getElementById("anime-description");
   var toggle = document.getElementById("description-toggle");
   if (!desc || !toggle) return;
-  function update() {
-    if (window.innerWidth >= 993) {
+  function desktopUpdate() {
+    desc.style.maxHeight = "";
+    desc.style.overflow = "";
+    var cs = getComputedStyle(desc);
+    var lh = parseFloat(cs.lineHeight);
+    if (!lh || isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.5;
+    var total = Math.round(desc.scrollHeight / lh);
+    var limit = null;
+    if (total > 9) {
+      var opts = [9, 6, 4];
+      for (var i = 0; i < opts.length; i++) {
+        if (total - opts[i] >= 2) { limit = opts[i]; break; }
+      }
+    }
+    if (limit === null) {
       toggle.style.display = "none";
       return;
     }
+    toggle.style.display = "inline-block";
+    if (desc.classList.contains("expanded")) {
+      toggle.textContent = "Свернуть";
+      return;
+    }
+    toggle.textContent = "Показать полностью";
+    desc.style.maxHeight = (limit * lh) + "px";
+    desc.style.overflow = "hidden";
+  }
+  function update() {
+    if (window.innerWidth >= 993) {
+      desktopUpdate();
+      return;
+    }
+    desc.style.maxHeight = "";
+    desc.style.overflow = "";
     if (desc.classList.contains("expanded")) {
       toggle.style.display = "inline-block";
       toggle.textContent = "Свернуть";
@@ -164,8 +193,10 @@ function _initDescriptionToggle() {
   toggle.addEventListener("click", function () {
     var expanded = desc.classList.toggle("expanded");
     toggle.textContent = expanded ? "Свернуть" : "Показать полностью";
+    update();
   });
   window.addEventListener("resize", update);
+  window.addEventListener("load", update);
   update();
 }
 if (document.readyState === "loading") {
