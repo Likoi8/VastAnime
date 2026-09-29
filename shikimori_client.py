@@ -363,7 +363,7 @@ def get_franchise(shikimori_id):
         else:
             _schedule_meta_bg_resolve(node_id)
 
-        final_image = anilist_image  # cache-only: без сети в основном потоке запроса
+        final_image = _proxy_image_url(anilist_image)  # cache-only: без сети в основном потоке запроса
         item = {
             "id": f"sh{node_id}",
             "title": node.get("name"),
