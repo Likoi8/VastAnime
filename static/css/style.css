@@ -1278,10 +1278,10 @@ a, button {
     left: -50px;
   }
   .comment-form-textarea {
-    max-width: 480px;
+    max-width: 400px;
   }
   .comment-form {
-    max-width: 480px;
+    max-width: 400px;
   }
 }
 /* Карточка без подставки */
