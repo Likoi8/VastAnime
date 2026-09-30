@@ -1299,7 +1299,19 @@ async def api_manga_info(request):
     if not info:
         return web.json_response({"error": "not_found"}, status=404)
     info["description_html"] = manga_client.render_summary_html(info.get("summary"))
-    return web.json_response({"manga_id": manga_id, "info": info, "chapters": chapters})
+    for ch in chapters:
+        branches = ch.get("branches") or []
+        ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
+    current_user = await auth.current_user(request)
+    progress = {}
+    if current_user:
+        try:
+            progress = await db.get_manga_progress(current_user["id"], manga_id)
+        except Exception:
+            progress = {}
+    return web.json_response({
+        "manga_id": manga_id, "info": info, "chapters": chapters, "progress": progress,
+    })
 
 
 async def manga_page(request):
@@ -1342,6 +1354,64 @@ async def api_manga_progress(request):
         return web.json_response({"error": "invalid_params"}, status=400)
     await db.set_manga_progress(user["id"], manga_id, volume, chapter, status)
     return web.json_response({"ok": True})
+
+
+async def api_manga_chapter(request):
+    """Страницы главы для нативного ридера в приложении.
+
+    Отдаёт абсолютные URL (наш /manga-img/), потому что img CDN манги
+    закрыт Referer-защитой и в приложении напрямую не грузится.
+    """
+    from urllib.parse import quote
+    manga_id = request.match_info["manga_id"]
+    volume = request.query.get("volume") or "1"
+    chapter = request.query.get("number") or request.query.get("chapter") or "1"
+    slug = manga_id_to_slug(manga_id)
+    try:
+        pages, chapters = await asyncio.gather(
+            asyncio.to_thread(manga_client.get_chapter_pages, slug, volume, chapter),
+            asyncio.to_thread(manga_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=502)
+    if not pages:
+        return web.json_response({"error": "not_found"}, status=404)
+
+    out_pages = []
+    for p in pages:
+        url = p.get("url") or ""
+        out_pages.append({
+            "url": SITE_URL + "/manga-img/" + quote(url, safe=""),
+            "width": p.get("width"),
+            "height": p.get("height"),
+        })
+
+    prev_chapter = None
+    next_chapter = None
+    current_index = None
+    for idx, ch in enumerate(chapters):
+        if str(ch.get("volume")) == str(volume) and str(ch.get("number")) == str(chapter):
+            current_index = idx
+            break
+    if current_index is not None:
+        if current_index - 1 >= 0:
+            prev_chapter = chapters[current_index - 1]
+        if current_index + 1 < len(chapters):
+            next_chapter = chapters[current_index + 1]
+
+    def chapter_ref(ch):
+        if not ch:
+            return None
+        return {"volume": ch.get("volume"), "number": ch.get("number"), "name": ch.get("name")}
+
+    return web.json_response({
+        "manga_id": manga_id,
+        "volume": volume,
+        "number": chapter,
+        "pages": out_pages,
+        "prev": chapter_ref(prev_chapter),
+        "next": chapter_ref(next_chapter),
+    }, headers={"Cache-Control": "public, max-age=600"})
 
 
 async def manga_read_page(request):
@@ -1556,6 +1626,7 @@ def create_app():
     app.router.add_get("/api/manga/updates", api_manga_updates)
     app.router.add_get("/api/anime/updates", api_anime_updates)
     app.router.add_get("/api/manga/{manga_id}", api_manga_info)
+    app.router.add_get("/api/manga/{manga_id}/chapter", api_manga_chapter)
     app.router.add_get("/manga/{manga_id}", manga_page)
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
     app.router.add_post("/api/manga-progress", api_manga_progress)
