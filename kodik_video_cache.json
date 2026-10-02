@@ -3593,7 +3593,7 @@
   },
   "49387": {
     "has_video": true,
-    "checked_at_ts": 1789927750.1610878
+    "checked_at_ts": 1790980358.9016356
   },
   "40356": {
     "has_video": true,
@@ -3901,7 +3901,7 @@
   },
   "52991": {
     "has_video": true,
-    "checked_at_ts": 1789927999.6129818
+    "checked_at_ts": 1790980409.94305
   },
   "9253": {
     "has_video": true,
@@ -4049,11 +4049,11 @@
   },
   "63816": {
     "has_video": false,
-    "checked_at_ts": 1789935349.5166495
+    "checked_at_ts": 1790980406.3543584
   },
   "59978": {
     "has_video": true,
-    "checked_at_ts": 1789935349.980111
+    "checked_at_ts": 1790980406.4419904
   },
   "33902": {
     "has_video": false,
@@ -4470,5 +4470,9 @@
   "942": {
     "has_video": true,
     "checked_at_ts": 1790980125.3295743
+  },
+  "4181": {
+    "has_video": true,
+    "checked_at_ts": 1790980381.839728
   }
 }
