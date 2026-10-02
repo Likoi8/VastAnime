@@ -4418,5 +4418,57 @@
   "63337": {
     "has_video": true,
     "checked_at_ts": 1790910577.2078693
+  },
+  "44006": {
+    "has_video": false,
+    "checked_at_ts": 1790980121.5671594
+  },
+  "976": {
+    "has_video": true,
+    "checked_at_ts": 1790980122.0320745
+  },
+  "62520": {
+    "has_video": false,
+    "checked_at_ts": 1790980122.157265
+  },
+  "33883": {
+    "has_video": false,
+    "checked_at_ts": 1790980122.4835122
+  },
+  "450": {
+    "has_video": true,
+    "checked_at_ts": 1790980122.9407382
+  },
+  "51116": {
+    "has_video": true,
+    "checked_at_ts": 1790980123.2455347
+  },
+  "54103": {
+    "has_video": true,
+    "checked_at_ts": 1790980123.5207684
+  },
+  "32063": {
+    "has_video": false,
+    "checked_at_ts": 1790980123.6886485
+  },
+  "29831": {
+    "has_video": true,
+    "checked_at_ts": 1790980124.1540306
+  },
+  "43832": {
+    "has_video": false,
+    "checked_at_ts": 1790980124.2907794
+  },
+  "45264": {
+    "has_video": false,
+    "checked_at_ts": 1790980124.5690436
+  },
+  "13093": {
+    "has_video": true,
+    "checked_at_ts": 1790980125.0341506
+  },
+  "942": {
+    "has_video": true,
+    "checked_at_ts": 1790980125.3295743
   }
 }
