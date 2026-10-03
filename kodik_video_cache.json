@@ -3501,7 +3501,7 @@
   },
   "40852": {
     "has_video": true,
-    "checked_at_ts": 1789927652.5001004
+    "checked_at_ts": 1791011538.5543778
   },
   "34577": {
     "has_video": true,
@@ -4474,5 +4474,25 @@
   "4181": {
     "has_video": true,
     "checked_at_ts": 1790980381.839728
+  },
+  "62568": {
+    "has_video": true,
+    "checked_at_ts": 1791011537.1205804
+  },
+  "61322": {
+    "has_video": true,
+    "checked_at_ts": 1791011537.3472772
+  },
+  "57592": {
+    "has_video": true,
+    "checked_at_ts": 1791011537.6752267
+  },
+  "55644": {
+    "has_video": true,
+    "checked_at_ts": 1791011537.9526997
+  },
+  "48549": {
+    "has_video": true,
+    "checked_at_ts": 1791011538.2376037
   }
 }
