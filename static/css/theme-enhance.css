@@ -426,6 +426,14 @@ body.ranobe-reader-body .site-main {
 .ranobe-reader-content p {
   margin: 0 0 1em;
 }
+/* разделитель сцены: пришёл на смену «※ ※ ※» и «△▼△▼» из исходника */
+.ranobe-reader-content .ranobe-scene-break {
+  border: 0;
+  height: 1px;
+  width: 55%;
+  margin: 1.8em auto;
+  background: linear-gradient(90deg, transparent, var(--border, rgba(255, 255, 255, 0.22)), transparent);
+}
 .ranobe-reader-content img {
   display: block;
   max-width: 100%;

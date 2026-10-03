@@ -239,9 +239,36 @@ def get_chapter_content(slug_url, volume, number):
             html = raw
         else:
             html = ""
-        data["content"] = rewrite_content_images(html)
+        data["content"] = clean_chapter_html(rewrite_content_images(html))
         _store(_chapter_cache, cache_key, data)
     return data or None
+
+
+# Декоративные «разделители сцены» из исходного текста (※ ※ ※, △▼△▼, * * * и т.п.)
+# выглядят как мусорные символы. Заменяем их на аккуратную линию.
+_DECOR_ONLY_RE = re.compile(
+    r"^[\s\u00a0\u3000"
+    r"※△▼✱✳✴❋❊❉✿❀＊*·•∙⋅◦○●◆◇★☆+=~_\-–—"
+    r"]+$"
+)
+_DECOR_BLOCK_RE = re.compile(
+    r"(?:<hr\s*/?>\s*)?<(h[1-6]|p)>\s*([^<]{1,120}?)\s*</\1>\s*(?:<hr\s*/?>)?",
+    re.IGNORECASE,
+)
+
+
+def clean_chapter_html(html):
+    """Убирает декоративные разделители глав, оставляя один тонкий разделитель."""
+    if not isinstance(html, str) or not html:
+        return html
+
+    def repl(match):
+        inner = match.group(2) or ""
+        if _DECOR_ONLY_RE.match(inner):
+            return '<hr class="ranobe-scene-break">'
+        return match.group(0)
+
+    return _DECOR_BLOCK_RE.sub(repl, html)
 
 
 def fetch_image(url):
