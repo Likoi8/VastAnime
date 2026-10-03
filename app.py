@@ -1628,22 +1628,20 @@ async def ranobe_page(request):
     for ch in chapters:
         branches = ch.get("branches") or []
         ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
-    # HD-постер с AniList (RanobeLib отдаёт максимум ~375px). Если не нашли —
-    # в шаблоне используется обычная обложка cdnlibs.
+    # HD-постер с AniList (RanobeLib отдаёт максимум ~375px). Страницу не
+    # тормозим: если обложка уже в кеше — берём её, иначе отдаём обычную
+    # cdnlibs и прогреваем HD в фоне (при следующем заходе будет HD).
+    title_candidates = [info.get("eng_name"), info.get("name"), info.get("rus_name")]
     cover_hd = None
     try:
-        hd_url = await asyncio.wait_for(
-            asyncio.to_thread(
-                shikimori_client.fetch_anilist_cover_for_titles,
-                [info.get("eng_name"), info.get("name"), info.get("rus_name")],
-            ),
-            timeout=4,
-        )
-        if hd_url:
-            from urllib.parse import quote
-            cover_hd = "/img-proxy/" + quote(hd_url, safe="")
+        from urllib.parse import quote
+        cached_hd, pending = shikimori_client.check_anilist_cover_cache(title_candidates)
+        if cached_hd:
+            cover_hd = "/img-proxy/" + quote(cached_hd, safe="")
+        elif pending:
+            # один фоновый поток, без пула запроса — страница не тормозит
+            shikimori_client.queue_anilist_cover_warm(title_candidates)
     except Exception:
-        # таймаут/ошибка AniList — не тормозим страницу, покажем обложку cdnlibs
         cover_hd = None
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(

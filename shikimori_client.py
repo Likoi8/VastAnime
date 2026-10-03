@@ -1017,6 +1017,72 @@ def fetch_anilist_cover_for_titles(titles, max_attempts=3):
     return None
 
 
+def check_anilist_cover_cache(titles):
+    """Без сети: (готовая HD-обложка или None, нужно ли ещё догружать).
+    Позволяет отдать страницу мгновенно и прогреть обложку в фоне."""
+    cached_url = None
+    pending = False
+    for raw in titles or []:
+        variant = _clean_anilist_title(raw)
+        if not variant:
+            continue
+        with _anilist_title_cache_lock:
+            val = _anilist_title_cache.get(variant.lower(), "___MISSING___")
+        if val == "___MISSING___":
+            pending = True
+        elif val and not cached_url:
+            cached_url = val
+    return cached_url, pending
+
+
+# Фоновый воркер для догрузки HD-обложек: ровно один поток, чтобы прогрев
+# никогда не занимал пул потоков aiohttp и не «вешал» сайт.
+_anilist_title_queue = _queue.Queue()
+_anilist_title_queued = set()
+_anilist_title_worker_lock = _threading.Lock()
+_anilist_title_worker_started = False
+
+
+def _anilist_title_worker():
+    while True:
+        key, candidates = _anilist_title_queue.get()
+        try:
+            if _anilist_neg.get("__all__", 0) > time.time():
+                time.sleep(30)
+                continue
+            fetch_anilist_cover_for_titles(candidates, max_attempts=2)
+        except Exception as e:
+            print(f"[shikimori_client] anilist title warm failed: {e}", flush=True)
+        finally:
+            with _anilist_title_worker_lock:
+                _anilist_title_queued.discard(key)
+            _anilist_title_queue.task_done()
+
+
+def _ensure_anilist_title_worker():
+    global _anilist_title_worker_started
+    with _anilist_title_worker_lock:
+        if _anilist_title_worker_started:
+            return
+        _anilist_title_worker_started = True
+    _threading.Thread(target=_anilist_title_worker, name="anilist-title-warm", daemon=True).start()
+
+
+def queue_anilist_cover_warm(titles):
+    """Ставит тайтл в очередь на фоновую догрузку HD-обложки. Без сети и без
+    ожидания — можно звать прямо из обработчика запроса."""
+    candidates = [t for t in (_clean_anilist_title(x) for x in (titles or [])) if t]
+    if not candidates:
+        return
+    key = candidates[0].lower()
+    with _anilist_title_worker_lock:
+        if key in _anilist_title_queued:
+            return
+        _anilist_title_queued.add(key)
+    _anilist_title_queue.put((key, candidates))
+    _ensure_anilist_title_worker()
+
+
 _meta_bg_inflight = set()
 _meta_bg_inflight_lock = _threading.Lock()
 
