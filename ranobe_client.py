@@ -51,23 +51,101 @@ def _store(cache_dict, key, data):
     cache_dict[key] = (time.time(), data)
 
 
+# RanobeLib ищет строго по подстроке и не знает русских народных названий,
+# поэтому добавляем алиасы и транслитерацию: «резеро» -> «re:zero».
+_TRANSLIT = {
+    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e",
+    "ж": "zh", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+    "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+    "ф": "f", "х": "h", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sch",
+    "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+}
+
+
+def _translit(text):
+    return "".join(_TRANSLIT.get(c, c) for c in (text or "").lower())
+
+
+def _norm_key(text):
+    """Нормализует запрос для поиска по алиасам: нижний регистр, без пробелов
+    и знаков препинания. 'Re:Zero' -> 'rezero', 'Ре зеро' -> 'резеро'."""
+    import re
+    return re.sub(r"[\W_]+", "", (text or "").lower(), flags=re.UNICODE)
+
+
+# Русское название (нормализованное) -> запрос, который реально находит тайтл.
+_SEARCH_ALIASES = {
+    "резеро": "re:zero",
+    "регрето": "re:zero",
+    "ванпис": "one piece",
+    "наруто": "naruto",
+    "магическаябитва": "jujutsu kaisen",
+    "атакатитанов": "shingeki no kyojin",
+    "тетрадьсмерти": "death note",
+    "клинокрассекающийдемонов": "kimetsu no yaiba",
+    "моягеройскаяакадемия": "boku no hero academia",
+    "оверлорд": "overlord",
+    "берсерк": "berserk",
+    "мастерамеча": "sword art online",
+    "сао": "sword art online",
+    "реинкарнациябезработного": "mushoku tensei",
+    "восхождениегероящита": "tate no yuusha no nariagari",
+    "омоемперерождениивслизь": "tensei shitara slime datta ken",
+    "богиняблагословляетэтотпрекрасныймир": "kono subarashii sekai ni shukufuku",
+    "данмачи": "danmachi",
+    "врата": "gate jieitai",
+    "сталкер": "stalker",
+}
+
+
+def _search_variants(query):
+    """Список запросов для перебора: исходный, алиас и транслитерация."""
+    variants = [query]
+    alias = _SEARCH_ALIASES.get(_norm_key(query))
+    if alias and alias not in variants:
+        variants.append(alias)
+    if any("\u0400" <= c <= "\u04ff" for c in query):
+        translit = _translit(query).strip()
+        if translit and translit not in variants:
+            variants.append(translit)
+    return variants
+
+
 def search_ranobe(query, limit=None):
-    """Поиск тайтлов по запросу. Возвращает список словарей из data[]."""
+    """Поиск тайтлов по запросу. Возвращает список словарей из data[].
+    Понимает русские народные названия («резеро» -> «re:zero»)."""
     cached = _cached(_search_cache, query)
     if cached is not None:
         return cached[:limit] if limit else cached
 
-    resp = requests.get(
-        f"{API_BASE}/api/manga",
-        params={"q": query, "site_id[]": RANOBELIB_SITE_ID},
-        headers=HEADERS,
-        timeout=10,
-    )
-    resp.raise_for_status()
-    data = resp.json().get("data", [])
+    seen = set()
+    merged = []
+    first_error = None
+    for variant in _search_variants(query):
+        try:
+            resp = requests.get(
+                f"{API_BASE}/api/manga",
+                params={"q": variant, "site_id[]": RANOBELIB_SITE_ID},
+                headers=HEADERS,
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json().get("data", [])
+        except Exception as e:
+            if first_error is None:
+                first_error = e
+            continue
+        for item in data:
+            slug = item.get("slug_url")
+            if slug and slug not in seen:
+                seen.add(slug)
+                merged.append(item)
 
-    _store(_search_cache, query, data)
-    return data[:limit] if limit else data
+    if not merged and first_error is not None:
+        raise first_error
+
+    _store(_search_cache, query, merged)
+    return merged[:limit] if limit else merged
 
 
 def get_ranobe_info(slug_url):

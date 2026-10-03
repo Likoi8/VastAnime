@@ -30,7 +30,7 @@
 
   function renderResults(results) {
     if (!results.length) {
-      gridEl.innerHTML = '<p class="manga-empty">Ничего не найдено.</p>';
+      gridEl.innerHTML = '<p class="manga-empty">Ничего не найдено. Попробуйте написать название латиницей, например «Re:Zero».</p>';
       return;
     }
     gridEl.innerHTML = results.map(renderCard).join("");
