@@ -10,7 +10,11 @@
 {% block content %}
 <div class="ranobe-reader-wrap">
   <div class="ranobe-reader-header">
-    <a href="/ranobe/{{ ranobe_id }}" class="ranobe-reader-title-link">Назад к тайтлу</a>
+    <a class="back-btn ranobe-reader-back" href="/ranobe/{{ ranobe_id }}"
+       onclick="if (history.length > 1 && document.referrer && document.referrer.indexOf(location.host) !== -1) { history.back(); return false; }"
+       aria-label="Назад">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
     <span class="ranobe-reader-chapter-label">Том {{ volume }} · Глава {{ chapter }}{% if chapter_name %} · {{ chapter_name }}{% endif %}</span>
   </div>
   <article class="ranobe-reader-content">

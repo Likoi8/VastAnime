@@ -376,14 +376,16 @@ body.is-home .site-main {
   flex-wrap: wrap;
   margin-bottom: 18px;
 }
-.ranobe-reader-title-link {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
+/* та же круглая кнопка, что на странице тайтла, но в потоке хедера */
+.back-btn.ranobe-reader-back {
+  position: static;
+  flex-shrink: 0;
 }
 .ranobe-reader-chapter-label {
   color: var(--text-dim, #9a9ab0);
   font-size: 14px;
+  margin-left: auto;
+  text-align: right;
 }
 .ranobe-reader-content {
   font-size: 18px;
