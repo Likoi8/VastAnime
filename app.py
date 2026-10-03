@@ -1643,26 +1643,11 @@ async def ranobe_page(request):
             shikimori_client.queue_anilist_cover_warm(title_candidates)
     except Exception:
         cover_hd = None
-    # Размытая фон-подложка из широкого баннера тайтла (1450px).
-    backdrop_url = None
-    try:
-        from urllib.parse import quote, urlsplit
-        bg = (info.get("background") or {}).get("url")
-        if bg and bg.startswith("http"):
-            host = (urlsplit(bg).hostname or "").lower()
-            if "cdnlibs.org" in host or "ranobelib" in host:
-                backdrop_url = "/img-proxy/" + quote(bg, safe="")
-            else:
-                backdrop_url = bg
-        elif bg and bg.startswith("/static/"):
-            backdrop_url = bg
-    except Exception:
-        backdrop_url = None
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "ranobe.html", request,
         {"ranobe_id": ranobe_id, "info": info, "chapters": chapters,
-         "current_user": current_user, "cover_hd": cover_hd, "backdrop_url": backdrop_url},
+         "current_user": current_user, "cover_hd": cover_hd},
     )
 
 

@@ -10,10 +10,7 @@
 {% block header %}{% endblock %}
 {% block content %}
 {% set poster_url = cover_hd or (info.cover or {}).get('default') or '/static/images/no-poster.svg' %}
-{% set backdrop = backdrop_url or poster_url %}
-<div class="ranobe-hero">
-  <div class="ranobe-hero-bg" style="background-image:url('{{ backdrop }}')" aria-hidden="true"></div>
-  <a class="back-btn" href="/ranobe" aria-label="Назад к списку ранобэ">
+<a class="back-btn" href="/ranobe" onclick="if (history.length > 1 && document.referrer && document.referrer.indexOf(location.host) !== -1) { history.back(); return false; }" aria-label="Назад">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
 </a>
 <section class="anime-card">
@@ -99,7 +96,6 @@
   <p class="anime-meta">Главы недоступны (возможно, лицензированный тайтл).</p>
   {% endif %}
 </section>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
