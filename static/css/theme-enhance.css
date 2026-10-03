@@ -412,6 +412,8 @@ body.ranobe-reader-body .site-main {
 }
 @media (max-width: 600px) {
   .ranobe-reader-header { justify-content: flex-start; }
+  /* на телефоне кнопку ещё левее, почти к краю экрана */
+  .back-btn.ranobe-reader-back { margin-left: -24px; }
   .ranobe-reader-chapter-label {
     margin-left: 0;
     text-align: left;
