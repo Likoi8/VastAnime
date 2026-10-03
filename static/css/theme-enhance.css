@@ -437,3 +437,39 @@ body.is-home .site-main {
   .ranobe-reader-nav-title { display: none; }
 }
 
+/* --- Размытая фон-подложка на странице ранобэ --- */
+.ranobe-hero {
+  position: relative;
+  z-index: 1;
+}
+.ranobe-hero-bg {
+  position: fixed;
+  inset: -80px;              /* запас, чтобы края не светились после blur */
+  z-index: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  filter: blur(70px) saturate(1.4);
+  opacity: 0.45;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.ranobe-hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* плавно гасим низ, чтобы читался контент на любом фоне */
+  background: linear-gradient(180deg,
+    rgba(13, 10, 23, 0.35) 0%,
+    rgba(13, 10, 23, 0.75) 55%,
+    var(--bg) 100%);
+}
+.ranobe-hero > *:not(.ranobe-hero-bg) {
+  position: relative;
+  z-index: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ranobe-hero-bg { transition: opacity 0.4s ease; }
+}
+
+
