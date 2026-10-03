@@ -1631,7 +1631,7 @@ async def ranobe_page(request):
     # HD-постер с AniList (RanobeLib отдаёт максимум ~375px). Страницу не
     # тормозим: если обложка уже в кеше — берём её, иначе отдаём обычную
     # cdnlibs и прогреваем HD в фоне (при следующем заходе будет HD).
-    title_candidates = [info.get("eng_name"), info.get("name"), info.get("rus_name")]
+    title_candidates = [info.get("eng_name"), info.get("name")]
     cover_hd = None
     try:
         from urllib.parse import quote

@@ -1054,7 +1054,7 @@ def _anilist_title_worker():
             if _anilist_neg.get("__all__", 0) > time.time():
                 time.sleep(30)
                 continue
-            fetch_anilist_cover_for_titles(candidates, max_attempts=1)
+            fetch_anilist_cover_for_titles(candidates, max_attempts=2)
         except Exception as e:
             print(f"[shikimori_client] anilist title warm failed: {e}", flush=True)
         finally:
