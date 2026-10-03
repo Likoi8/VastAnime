@@ -1628,10 +1628,28 @@ async def ranobe_page(request):
     for ch in chapters:
         branches = ch.get("branches") or []
         ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
+    # HD-постер с AniList (RanobeLib отдаёт максимум ~375px). Если не нашли —
+    # в шаблоне используется обычная обложка cdnlibs.
+    cover_hd = None
+    try:
+        hd_url = await asyncio.wait_for(
+            asyncio.to_thread(
+                shikimori_client.fetch_anilist_cover_for_titles,
+                [info.get("eng_name"), info.get("name"), info.get("rus_name")],
+            ),
+            timeout=4,
+        )
+        if hd_url:
+            from urllib.parse import quote
+            cover_hd = "/img-proxy/" + quote(hd_url, safe="")
+    except Exception:
+        # таймаут/ошибка AniList — не тормозим страницу, покажем обложку cdnlibs
+        cover_hd = None
     current_user = await auth.current_user(request)
     return aiohttp_jinja2.render_template(
         "ranobe.html", request,
-        {"ranobe_id": ranobe_id, "info": info, "chapters": chapters, "current_user": current_user},
+        {"ranobe_id": ranobe_id, "info": info, "chapters": chapters,
+         "current_user": current_user, "cover_hd": cover_hd},
     )
 
 

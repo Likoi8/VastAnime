@@ -9,12 +9,13 @@
 {% block nav_home_active %}active{% endblock %}
 {% block header %}{% endblock %}
 {% block content %}
+{% set poster_url = cover_hd or (info.cover or {}).get('default') or '/static/images/no-poster.svg' %}
 <a class="back-btn" href="/ranobe" aria-label="Назад к списку ранобэ">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
 </a>
 <section class="anime-card">
   <div class="anime-poster-wrap">
-    <img class="anime-poster" src="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" alt="{{ info.rus_name or info.name }}">
+    <img class="anime-poster" src="{{ poster_url }}" alt="{{ info.rus_name or info.name }}">
   </div>
   <div class="anime-details">
     <div class="title-row">
@@ -67,7 +68,7 @@
     </script>
     {% set ch_total = (chapters|last).number if chapters else (info.chap_count or info.items_count or '') %}
       <div class="anime-meta-row">
-<button id="bookmark-btn" class="bookmark-btn" data-id="{{ ranobe_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
+<button id="bookmark-btn" class="bookmark-btn" data-id="{{ ranobe_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ poster_url }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
         </button>
         <p class="anime-meta">{{ (info.type or {}).get('label', 'Ранобэ') }}{% if (info.status or {}).get('label') %} · {{ info.status.label }}{% endif %}{% if ch_total %} · {{ ch_total }} гл.{% endif %}</p>

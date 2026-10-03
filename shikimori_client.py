@@ -77,7 +77,9 @@ def fetch_external_image(url):
     """Скачивает байты произвольной внешней картинки (для /img-proxy/) и
     возвращает (content_bytes, content_type) или (None, None) при ошибке."""
     try:
-        resp = requests.get(url, headers=image_headers_for(url), timeout=10)
+        # connect-таймаут короче: часть адресов AniList/CDN бывает «мёртвой»,
+        # не хотим висеть на первом попавшемся
+        resp = requests.get(url, headers=image_headers_for(url), timeout=(3, 15))
         if resp.status_code != 200:
             return None, None
         return resp.content, resp.headers.get("Content-Type", "image/jpeg")
@@ -684,6 +686,8 @@ _anilist_cache = {}  # mal_id(str) -> url|None
 _anilist_cache_lock = threading.Lock()
 _anilist_last_call = 0.0
 _ANILIST_MIN_INTERVAL = 2.0  # ~85 запросов/мин, с запасом от лимита AniList (90/мин)
+_anilist_title_last_call = 0.0
+_ANILIST_TITLE_MIN_INTERVAL = 1.0  # поиск обложки по названию — реже и быстрее
 _anilist_rate_lock = threading.Lock()  # сериализует троттлинг+HTTP всех вызовов _fetch_anilist_cover
 # Предохранитель: если AniList недоступен (например, IPv6-адрес blackhole),
 # все воркеры пула потоков забиваются ожиданием, и сайт перестаёт отвечать.
@@ -927,7 +931,7 @@ _load_anilist_title_cache()
 def fetch_anilist_cover_by_title(title):
     """HD-обложка с AniList по названию тайтла (или None).
     Предпочитает формат NOVEL, иначе берёт первый результат. Кеш на диске."""
-    global _anilist_last_call, _anilist_consecutive_fails
+    global _anilist_title_last_call, _anilist_consecutive_fails
     title = (title or "").strip()
     if not title:
         return None
@@ -943,10 +947,10 @@ def fetch_anilist_cover_by_title(title):
         if _anilist_neg.get("__all__", 0) > time.time():
             return None
         now = time.time()
-        wait = _ANILIST_MIN_INTERVAL - (now - _anilist_last_call)
+        wait = _ANILIST_TITLE_MIN_INTERVAL - (now - _anilist_title_last_call)
         if wait > 0:
             time.sleep(wait)
-        _anilist_last_call = time.time()
+        _anilist_title_last_call = time.time()
 
         result = None
         try:
@@ -983,6 +987,34 @@ def fetch_anilist_cover_by_title(title):
         _anilist_title_cache[key] = result
         _save_anilist_title_cache()
     return result
+
+
+def _clean_anilist_title(title):
+    """Убирает хвосты вида (WN), (Novel), (Веб-новелла) — AniList по ним не ищет."""
+    text = re.sub(r"\([^)]*\)", " ", title or "")
+    text = re.sub(r"\b(WN|LN|Web\s*Novel|Novel)\b", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+", " ", text).strip(" -–—:.,")
+    return text
+
+
+def fetch_anilist_cover_for_titles(titles, max_attempts=3):
+    """Перебирает варианты названия и возвращает первую найденную HD-обложку.
+    Ограничено max_attempts сетевыми запросами, чтобы не тормозить страницу."""
+    seen = set()
+    attempts = 0
+    for raw in titles or []:
+        if attempts >= max_attempts:
+            break
+        variant = _clean_anilist_title(raw)
+        key = variant.lower()
+        if not variant or key in seen:
+            continue
+        seen.add(key)
+        attempts += 1
+        url = fetch_anilist_cover_by_title(variant)
+        if url:
+            return url
+    return None
 
 
 _meta_bg_inflight = set()
