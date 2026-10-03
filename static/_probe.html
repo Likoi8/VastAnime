@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<div id="out">wait</div>
+<iframe id="f" style="width:100%;height:800px;border:0" src="/ranobe/rn94231--rezero-kara-hajimeru-isekai-seikatsu-outo-no-ichinichi-hen/read/1/1"></iframe>
+<script>
+document.getElementById('f').addEventListener('load', function(){
+  var w=document.getElementById('f').contentWindow, d=w.document;
+  var s=d.querySelector('.ranobe-strip'), out=document.getElementById('out');
+  if(!s){out.textContent='RESULT NO_STRIP';return;}
+  var r=s.getBoundingClientRect(), cs=w.getComputedStyle(s);
+  out.textContent='RESULT left='+Math.round(r.left)+' right='+Math.round(r.right)+' width='+Math.round(r.width)
+    +' radius='+cs.borderRadius+' vw='+w.innerWidth+' scrollW='+d.documentElement.scrollWidth+' clientW='+d.documentElement.clientWidth;
+});
+</script></body></html>
