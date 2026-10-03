@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ info.rus_name or info.name }} — VastAnime{% endblock %}
+{% block meta_description %}Читать {{ info.rus_name or info.name }} онлайн бесплатно на VastAnime{% endblock %}
+{% block canonical %}https://vastanime.ru/ranobe/{{ ranobe_id }}{% endblock %}
+{% block og_title %}{{ info.rus_name or info.name }} — VastAnime{% endblock %}
+{% block og_url %}https://vastanime.ru/ranobe/{{ ranobe_id }}{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_ranobe_active %}active{% endblock %}
+{% block nav_home_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<a class="back-btn" href="/ranobe" aria-label="Назад к списку ранобэ">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+</a>
+<section class="anime-card">
+  <div class="anime-poster-wrap">
+    <img class="anime-poster" src="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" alt="{{ info.rus_name or info.name }}">
+  </div>
+  <div class="anime-details">
+    <div class="title-row">
+      <button type="button" class="title-info-btn" id="title-info-btn" aria-label="Полное название"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+      <h1 class="title-clamp">{{ info.rus_name or info.name }}</h1>
+    </div>
+    <div class="title-sheet" id="title-sheet">
+      <div class="title-sheet-backdrop" data-close="1"></div>
+      <div class="title-sheet-panel">
+        <div class="title-sheet-handle"></div>
+        {% if info.rus_name %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Название</span><button type="button" class="ts-copy" data-copy="{{ info.rus_name }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ info.rus_name }}</div>
+        </div>
+        {% endif %}
+        {% if info.name and info.name != info.rus_name %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Оригинальное название</span><button type="button" class="ts-copy" data-copy="{{ info.name }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ info.name }}</div>
+        </div>
+        {% endif %}
+        {% set alt_joined = info.otherNames|join(', ') if info.otherNames is defined and info.otherNames else '' %}
+        {% if alt_joined %}
+        <div class="ts-field">
+          <div class="ts-label"><span>Альтернативные названия</span><button type="button" class="ts-copy" data-copy="{{ alt_joined }}" aria-label="Копировать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div>
+          <div class="ts-value">{{ alt_joined }}</div>
+        </div>
+        {% endif %}
+        <button type="button" class="ts-close" data-close="1">Закрыть</button>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var sheet = document.getElementById("title-sheet");
+      var btn = document.getElementById("title-info-btn");
+      if (!sheet || !btn) return;
+      document.body.appendChild(sheet);
+      var root = document.documentElement;
+      function openSheet() { sheet.classList.add("open"); root.classList.add("sheet-lock"); }
+      function closeSheet() { sheet.classList.remove("open"); root.classList.remove("sheet-lock"); }
+      btn.addEventListener("click", openSheet);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+      sheet.addEventListener("click", function (e) {
+        if (e.target.closest("[data-close]")) { closeSheet(); return; }
+        var c = e.target.closest(".ts-copy");
+        if (c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.copy || "");
+      });
+    })();
+    </script>
+    {% set ch_total = (chapters|last).number if chapters else (info.chap_count or info.items_count or '') %}
+      <div class="anime-meta-row">
+<button id="bookmark-btn" class="bookmark-btn" data-id="{{ ranobe_id }}" data-title="{{ info.rus_name or info.name }}" data-image="{{ (info.cover or {}).get('default') or '/static/images/no-poster.svg' }}" data-episodes="{{ ch_total or '' }}" data-score="" aria-label="Добавить в закладки">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
+        </button>
+        <p class="anime-meta">{{ (info.type or {}).get('label', 'Ранобэ') }}{% if (info.status or {}).get('label') %} · {{ info.status.label }}{% endif %}{% if ch_total %} · {{ ch_total }} гл.{% endif %}</p>
+      </div>
+    <p class="anime-genres">
+      {% for g in (info.genres or []) %}<span class="genre-pill">{{ g.name }}</span>{% endfor %}
+    </p>
+    <div class="anime-description" id="anime-description">{{ info.description_html | safe }}</div>
+  </div>
+</section>
+<section class="episodes-section">
+  <h2>Главы</h2>
+  {% if chapters and chapters|length > 0 %}
+  <div class="chapter-list" id="chapters-grid">
+    {% for ch in chapters %}
+    <a class="chapter-item" href="/ranobe/{{ ranobe_id }}/read/{{ ch.volume }}/{{ ch.number }}">
+      <span>Том {{ ch.volume }} · Глава {{ ch.number }}{% if ch.name %} · {{ ch.name }}{% endif %}</span>
+      <span class="chapter-item-right">
+          {% if ch.release_date %}<span class="chapter-item-date">{{ ch.release_date }}</span>{% endif %}
+        </span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="anime-meta">Главы недоступны (возможно, лицензированный тайтл).</p>
+  {% endif %}
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('bookmark-btn');
+  if (!btn) return;
+  const item = {
+    id: btn.dataset.id,
+    title: btn.dataset.title,
+    image: btn.dataset.image,
+    episodes: btn.dataset.episodes,
+    score: btn.dataset.score
+  };
+  async function refresh() {
+    btn.classList.toggle('active', await isBookmarked(item.id));
+  }
+  refresh();
+  btn.addEventListener('click', async function () {
+    const result = await toggleBookmark(item);
+    if (result.authenticated === false) {
+      window.location.href = '/auth/google';
+      return;
+    }
+    refresh();
+  });
+});
+</script>
+{% endblock %}

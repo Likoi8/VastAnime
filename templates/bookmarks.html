@@ -39,7 +39,12 @@
     const card = document.createElement('a');
     card.className = 'feed-card';
     const isManga = String(item.id).startsWith('mg');
+    const isRanobe = String(item.id).startsWith('rn');
+    if (isRanobe) {
+      card.href = '/ranobe/' + item.id;
+    } else {
       card.href = (isManga ? '/manga/' : '/anime/') + item.id;
+    }
 
     if (item.image) {
       const img = document.createElement('img');
@@ -59,7 +64,7 @@
     const meta = document.createElement('div');
     meta.className = 'feed-card-meta';
     const parts = [];
-    if (item.episodes) parts.push(item.episodes + (isManga ? ' гл.' : ' эп.'));
+    if (item.episodes) parts.push(item.episodes + (isManga || isRanobe ? ' гл.' : ' эп.'));
     if (item.score) parts.push('★ ' + item.score);
     meta.textContent = parts.join(' · ');
     body.appendChild(meta);

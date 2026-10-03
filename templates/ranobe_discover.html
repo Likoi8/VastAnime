@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Ранобэ — VastAnime{% endblock %}
+{% block meta_description %}Читать ранобэ и новеллы онлайн бесплатно на VastAnime{% endblock %}
+{% block canonical %}https://vastanime.ru/ranobe{% endblock %}
+{% block og_title %}Ранобэ — VastAnime{% endblock %}
+{% block og_url %}https://vastanime.ru/ranobe{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_ranobe_active %}active{% endblock %}
+{% block nav_home_active %}active{% endblock %}
+{% block search_placeholder %}Поиск ранобэ...{% endblock %}
+{% block sakura %}
+<div class="sakura-container" aria-hidden="true">
+  {% for i in range(15) %}
+  <span class="sakura-petal" style="left: {{ (i * 53 + 17) % 100 }}%; width: {{ 6 + (i % 4) }}px; height: {{ 6 + (i % 4) }}px; animation-duration: {{ 9 + (i * 7 % 6) }}s; animation-delay: {{ ((i * 1.1 + (i % 3) * 2.3) % 12) | round(1) }}s;"></span>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block content %}
+<section class="feed" id="ranobe-grid">
+  {% for item in updates %}
+  <a class="feed-card" href="/ranobe/{{ item.id }}">
+    <img src="{{ item.image or '/static/images/no-poster.svg' }}" alt="{{ item.title }}">
+    <div class="feed-card-body"><div class="feed-card-title">{{ item.title }}</div></div>
+  </a>
+  {% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/ranobe-search.js?v={{ js_versions["ranobe-search.js"] }}"></script>
+<script src="/static/js/ranobe-scroll.js?v={{ js_versions["ranobe-scroll.js"] }}"></script>
+{% endblock %}

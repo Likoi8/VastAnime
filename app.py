@@ -19,6 +19,7 @@ import db
 import auth
 import levels
 import manga_client
+import ranobe_client
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -844,7 +845,7 @@ async def css_version_processor(request):
 
 async def js_version_processor(request):
     versions = {}
-    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js", "manga-search.js", "manga-scroll.js", "anime-scroll.js"):
+    for name in ("bookmarks.js", "main.js", "comments.js", "verify.js", "search.js", "player.js", "manga-search.js", "manga-scroll.js", "ranobe-search.js", "ranobe-scroll.js", "anime-scroll.js"):
         js_path = os.path.join(BASE_DIR, "static", "js", name)
         try:
             versions[name] = int(os.path.getmtime(js_path))
@@ -908,7 +909,7 @@ GOOD_BOTS = ("googlebot", "yandex", "bingbot")
 SCRIPT_UA = ("python-requests", "python-urllib", "aiohttp", "httpx", "scrapy", "go-http-client",
              "curl/", "wget", "libwww", "java/", "node-fetch", "axios", "headlesschrome",
              "phantomjs", "selenium", "puppeteer")
-TITLE_PREFIXES = ("/anime/", "/watch/", "/manga/")
+TITLE_PREFIXES = ("/anime/", "/watch/", "/manga/", "/ranobe/")
 GUARD_SKIP_PREFIXES = ("/yoomoney/", "/goto")
 GUARD_SKIP_PATHS = ("/robots.txt", "/sitemap.xml", "/favicon.ico")
 
@@ -956,7 +957,7 @@ async def bot_guard_middleware(request, handler):
     if path.startswith(GUARD_SKIP_PREFIXES) or path in GUARD_SKIP_PATHS or _is_trusted(ip):
         return await handler(request)
     now = _time.time()
-    if path.startswith(("/static/", "/manga-img/", "/img-proxy/")):
+    if path.startswith(("/static/", "/manga-img/", "/ranobe-img/", "/img-proxy/")):
         if len(STATIC_SEEN) > 20000:
             STATIC_SEEN.clear()
         STATIC_SEEN[ip] = now
@@ -1020,12 +1021,12 @@ async def visit_middleware(request, handler):
                 session["visitor_id"] = visitor_id
             ip = request.headers.get("X-Real-IP", request.remote)
             ua = (request.headers.get("User-Agent") or "").lower()
-            skip_path = request.path.startswith(("/api/", "/manga-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+            skip_path = request.path.startswith(("/api/", "/manga-img/", "/ranobe-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
             skip_ip = ip in OWN_IPS or ip in BOT_IPS
             if not (skip_path or skip_ua or skip_ip):
                 ua = (request.headers.get("User-Agent") or "").lower()
-            skip_path = request.path.startswith(("/api/", "/manga-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
+            skip_path = request.path.startswith(("/api/", "/manga-img/", "/ranobe-img/", "/img-proxy/", "/goto", "/yoomoney/")) or request.path in ("/robots.txt", "/sitemap.xml", "/favicon.ico")
             skip_ua = (not ua) or any(b in ua for b in ("bot", "spider", "crawl", "curl", "python", "wget", "scrapy", "headless", "slurp"))
             skip_ip = ip in ("127.0.0.1", "::1", "85.174.187.87")
             if not (skip_path or skip_ua or skip_ip):
@@ -1516,6 +1517,227 @@ async def manga_img_proxy(request):
     )
 
 
+# ---------------------------------------------------------------------------
+# Ранобэ (RanobeLib, тот же движок что и у манги — см. ranobe_client.py)
+# ---------------------------------------------------------------------------
+
+def ranobe_id_to_slug(ranobe_id: str) -> str:
+    return ranobe_id[2:] if ranobe_id.startswith("rn") else ranobe_id
+
+
+def _format_ranobe_update_item(item):
+    slug = item.get("slug_url")
+    if not slug:
+        return None
+    return {
+        "id": f"rn{slug}",
+        "title": item.get("rus_name") or item.get("name"),
+        "image": (item.get("cover") or {}).get("default"),
+        "type_label": (item.get("type") or {}).get("label"),
+        "status_label": (item.get("status") or {}).get("label"),
+    }
+
+
+async def ranobe_discover_page(request):
+    try:
+        raw_updates = await asyncio.to_thread(ranobe_client.get_latest_updates, 30)
+    except Exception:
+        raw_updates = []
+    updates = [u for u in (_format_ranobe_update_item(i) for i in raw_updates) if u]
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "ranobe_discover.html", request,
+        {"current_user": current_user, "updates": updates},
+    )
+
+
+async def api_ranobe_updates(request):
+    try:
+        page = int(request.query.get("page", "1"))
+    except ValueError:
+        page = 1
+    page = max(1, min(page, ranobe_client.UPDATES_MAX_PAGE))
+    try:
+        raw_updates = await asyncio.to_thread(ranobe_client.get_latest_updates_page, page)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    updates = [u for u in (_format_ranobe_update_item(i) for i in raw_updates) if u]
+    has_more = bool(raw_updates) and page < ranobe_client.UPDATES_MAX_PAGE
+    return web.json_response(
+        {"results": updates, "items": updates, "page": page, "has_more": has_more},
+        headers={"Cache-Control": "public, max-age=300"},
+    )
+
+
+async def api_ranobe_search(request):
+    query = request.query.get("q", "").strip()
+    if not query:
+        return web.json_response({"results": []})
+    try:
+        results = await asyncio.to_thread(ranobe_client.search_ranobe, query, 20)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    out = []
+    for item in results:
+        slug = item.get("slug_url")
+        if not slug:
+            continue
+        out.append({
+            "id": f"rn{slug}",
+            "title": item.get("rus_name") or item.get("name"),
+            "image": (item.get("cover") or {}).get("default"),
+            "type_label": (item.get("type") or {}).get("label"),
+        })
+    return web.json_response({"results": out})
+
+
+async def api_ranobe_info(request):
+    ranobe_id = request.match_info["ranobe_id"]
+    slug = ranobe_id_to_slug(ranobe_id)
+    try:
+        info, chapters = await asyncio.gather(
+            asyncio.to_thread(ranobe_client.get_ranobe_info, slug),
+            asyncio.to_thread(ranobe_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+    if not info:
+        return web.json_response({"error": "not_found"}, status=404)
+    info["description_html"] = ranobe_client.render_summary_html(info.get("summary"))
+    for ch in chapters:
+        branches = ch.get("branches") or []
+        ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
+    return web.json_response({
+        "ranobe_id": ranobe_id, "info": info, "chapters": chapters,
+    })
+
+
+async def ranobe_page(request):
+    ranobe_id = request.match_info["ranobe_id"]
+    slug = ranobe_id_to_slug(ranobe_id)
+    try:
+        info, chapters = await asyncio.gather(
+            asyncio.to_thread(ranobe_client.get_ranobe_info, slug),
+            asyncio.to_thread(ranobe_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.Response(text=f"Ошибка загрузки: {e}", status=500)
+    if not info:
+        return web.Response(text="Тайтл не найден", status=404)
+    info["description_html"] = ranobe_client.render_summary_html(info.get("summary"))
+    for ch in chapters:
+        branches = ch.get("branches") or []
+        ch["release_date"] = _format_manga_date(branches[0].get("created_at")) if branches else None
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "ranobe.html", request,
+        {"ranobe_id": ranobe_id, "info": info, "chapters": chapters, "current_user": current_user},
+    )
+
+
+async def api_ranobe_chapter(request):
+    """Текст главы для нативного ридера в приложении."""
+    ranobe_id = request.match_info["ranobe_id"]
+    volume = request.query.get("volume") or "1"
+    chapter = request.query.get("number") or request.query.get("chapter") or "1"
+    slug = ranobe_id_to_slug(ranobe_id)
+    try:
+        content, chapters = await asyncio.gather(
+            asyncio.to_thread(ranobe_client.get_chapter_content, slug, volume, chapter),
+            asyncio.to_thread(ranobe_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=502)
+    if not content:
+        return web.json_response({"error": "not_found"}, status=404)
+
+    prev_chapter = next_chapter = None
+    current_index = None
+    for idx, ch in enumerate(chapters):
+        if str(ch.get("volume")) == str(volume) and str(ch.get("number")) == str(chapter):
+            current_index = idx
+            break
+    if current_index is not None:
+        if current_index - 1 >= 0:
+            prev_chapter = chapters[current_index - 1]
+        if current_index + 1 < len(chapters):
+            next_chapter = chapters[current_index + 1]
+
+    def chapter_ref(ch):
+        if not ch:
+            return None
+        return {"volume": ch.get("volume"), "number": ch.get("number"), "name": ch.get("name")}
+
+    return web.json_response({
+        "ranobe_id": ranobe_id,
+        "volume": volume,
+        "number": chapter,
+        "name": content.get("name"),
+        "content": content.get("content") or "",
+        "prev": chapter_ref(prev_chapter),
+        "next": chapter_ref(next_chapter),
+    }, headers={"Cache-Control": "public, max-age=600"})
+
+
+async def ranobe_read_page(request):
+    ranobe_id = request.match_info["ranobe_id"]
+    volume = request.match_info["volume"]
+    chapter = request.match_info["chapter"]
+    slug = ranobe_id_to_slug(ranobe_id)
+    try:
+        content, chapters = await asyncio.gather(
+            asyncio.to_thread(ranobe_client.get_chapter_content, slug, volume, chapter),
+            asyncio.to_thread(ranobe_client.get_chapters, slug),
+        )
+    except Exception as e:
+        return web.Response(text=f"Ошибка загрузки: {e}", status=500)
+    if not content:
+        return web.Response(text="Глава не найдена", status=404)
+
+    prev_chapter = next_chapter = None
+    current_index = None
+    for idx, ch in enumerate(chapters):
+        if str(ch.get("volume")) == str(volume) and str(ch.get("number")) == str(chapter):
+            current_index = idx
+            break
+    if current_index is not None:
+        if current_index - 1 >= 0:
+            prev_chapter = chapters[current_index - 1]
+        if current_index + 1 < len(chapters):
+            next_chapter = chapters[current_index + 1]
+
+    current_user = await auth.current_user(request)
+    return aiohttp_jinja2.render_template(
+        "ranobe_read.html", request,
+        {
+            "ranobe_id": ranobe_id, "volume": volume, "chapter": chapter,
+            "chapter_name": content.get("name"),
+            "content_html": content.get("content") or "",
+            "current_user": current_user,
+            "prev_chapter": prev_chapter, "next_chapter": next_chapter,
+        },
+    )
+
+
+async def ranobe_img_proxy(request):
+    from urllib.parse import unquote
+    encoded = request.match_info["encoded"]
+    original_url = unquote(encoded)
+    if not original_url.startswith("http"):
+        return web.Response(status=400, text="bad url")
+    try:
+        data, content_type = await asyncio.to_thread(ranobe_client.fetch_image, original_url)
+    except Exception:
+        return web.Response(status=502, text="fetch failed")
+    if data is None:
+        return web.Response(status=502, text="upstream error")
+    return web.Response(
+        body=data,
+        content_type=content_type or "image/jpeg",
+        headers={"Cache-Control": "public, max-age=2592000"},
+    )
+
+
 _ABS_IMAGE_KEYS = {
     "image", "images", "image_url", "poster", "poster_url", "cover", "covers",
     "background", "avatar", "avatar_url", "screenshot", "screenshots",
@@ -1631,6 +1853,14 @@ def create_app():
     app.router.add_get("/manga/{manga_id}/read/{volume}/{chapter}", manga_read_page)
     app.router.add_post("/api/manga-progress", api_manga_progress)
     app.router.add_get("/manga-img/{encoded}", manga_img_proxy)
+    app.router.add_get("/ranobe", ranobe_discover_page)
+    app.router.add_get("/api/ranobe/search", api_ranobe_search)
+    app.router.add_get("/api/ranobe/updates", api_ranobe_updates)
+    app.router.add_get("/api/ranobe/{ranobe_id}", api_ranobe_info)
+    app.router.add_get("/api/ranobe/{ranobe_id}/chapter", api_ranobe_chapter)
+    app.router.add_get("/ranobe/{ranobe_id}", ranobe_page)
+    app.router.add_get("/ranobe/{ranobe_id}/read/{volume}/{chapter}", ranobe_read_page)
+    app.router.add_get("/ranobe-img/{encoded}", ranobe_img_proxy)
     app.router.add_get("/img-proxy/{encoded}", img_proxy)
     app.router.add_get("/api/updates", api_updates)
     app.router.add_get("/bookmarks", bookmarks_page)

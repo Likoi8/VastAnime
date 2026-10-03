@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Том {{ volume }} Глава {{ chapter }}{% if chapter_name %} · {{ chapter_name }}{% endif %} — VastAnime{% endblock %}
+{% block meta_description %}Читать онлайн на VastAnime{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block type_tab_anime_active %}{% endblock %}
+{% block type_tab_ranobe_active %}active{% endblock %}
+{% block nav_home_active %}active{% endblock %}
+{% block header %}{% endblock %}
+{% block body_class %}ranobe-reader-body{% endblock %}
+{% block content %}
+<div class="ranobe-reader-wrap">
+  <div class="ranobe-reader-header">
+    <a href="/ranobe/{{ ranobe_id }}" class="ranobe-reader-title-link">Назад к тайтлу</a>
+    <span class="ranobe-reader-chapter-label">Том {{ volume }} · Глава {{ chapter }}{% if chapter_name %} · {{ chapter_name }}{% endif %}</span>
+  </div>
+  <article class="ranobe-reader-content">
+    {{ content_html | safe }}
+  </article>
+  <div class="ranobe-reader-nav">
+    {% if prev_chapter %}
+    <a class="ranobe-reader-nav-btn" aria-label="Предыдущая глава" href="/ranobe/{{ ranobe_id }}/read/{{ prev_chapter.volume }}/{{ prev_chapter.number }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Предыдущая</span></a>
+    {% else %}
+    <span class="ranobe-reader-nav-btn disabled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Предыдущая</span></span>
+    {% endif %}
+    <a class="ranobe-reader-nav-title" href="/ranobe/{{ ranobe_id }}">К тайтлу</a>
+    {% if next_chapter %}
+    <a class="ranobe-reader-nav-btn" aria-label="Следующая глава" href="/ranobe/{{ ranobe_id }}/read/{{ next_chapter.volume }}/{{ next_chapter.number }}"><span>Следующая</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a>
+    {% else %}
+    <span class="ranobe-reader-nav-btn disabled"><span>Следующая</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
