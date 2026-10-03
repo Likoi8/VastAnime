@@ -98,16 +98,32 @@ _SEARCH_ALIASES = {
 }
 
 
+def _resolve_alias(query):
+    """Точное совпадение или алиас-префикс: «резеро веб новелла» -> «re:zero».
+    Префиксы короче 4 символов не берём, чтобы не ловить ложные срабатывания."""
+    key = _norm_key(query)
+    if key in _SEARCH_ALIASES:
+        return _SEARCH_ALIASES[key]
+    best = None
+    for alias_key, target in _SEARCH_ALIASES.items():
+        if len(alias_key) >= 4 and key.startswith(alias_key):
+            if best is None or len(alias_key) > len(best[0]):
+                best = (alias_key, target)
+    return best[1] if best else None
+
+
 def _search_variants(query):
-    """Список запросов для перебора: исходный, алиас и транслитерация."""
-    variants = [query]
-    alias = _SEARCH_ALIASES.get(_norm_key(query))
-    if alias and alias not in variants:
+    """Список запросов для перебора. Если у русского названия есть алиас —
+    его результаты идут первыми (это и есть то, что искал пользователь),
+    затем исходный запрос и транслитерация."""
+    variants = []
+    alias = _resolve_alias(query)
+    if alias:
         variants.append(alias)
-    if any("\u0400" <= c <= "\u04ff" for c in query):
-        translit = _translit(query).strip()
-        if translit and translit not in variants:
-            variants.append(translit)
+    translit = _translit(query).strip() if any("\u0400" <= c <= "\u04ff" for c in query) else ""
+    for candidate in (query, translit):
+        if candidate and candidate not in variants:
+            variants.append(candidate)
     return variants
 
 
