@@ -1192,7 +1192,9 @@ def get_updates(limit=None, only_page=None, status="ongoing", order="aired_on"):
     # Ограничиваем время на добывание обложек с AniList: иначе медленный/
     # недоступный AniList держит воркер потока очень долго (до 100 тайтлов ×
     # троттлинг+таймаут), забивает пул и сайт перестаёт отвечать.
-    cover_deadline = time.time() + 20
+    # 8с вместо 20с: холодный старт после рестарта заметно быстрее, а
+    # недостающие обложки догрузятся в следующие проходы (кэш на диске).
+    cover_deadline = time.time() + 8
     for item in data:
         meta = meta_map.get(item.get("id"), {"real": False, "mal_id": None})
         if not meta.get("real"):
