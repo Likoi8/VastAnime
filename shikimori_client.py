@@ -1,9 +1,24 @@
 import re
 import requests
 import time
+import socket as _socket
 
 SHIKIMORI_BASE = "https://shikimori.io"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+# На этом сервере нет рабочего IPv6, а DNS AniList отдаёт и IPv4, и IPv6;
+# urllib3 перебирает адреса и может висеть на IPv6/мёртвых IPv4 по 8+ секунд.
+# Для anilist.co оставляем только IPv4 — запросы укладываются в 0.1–2 с.
+_orig_getaddrinfo = _socket.getaddrinfo
+
+
+def _ipv4_only_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    if host and "anilist.co" in host.lower():
+        family = _socket.AF_INET
+    return _orig_getaddrinfo(host, port, family, type, proto, flags)
+
+
+_socket.getaddrinfo = _ipv4_only_getaddrinfo
 
 def _get_with_retry(url, params=None, timeout=5, max_retries=3):
     """GET с ретраем и экспоненциальным backoff на 429 (rate limit Shikimori)."""
@@ -773,7 +788,7 @@ def _fetch_anilist_description(mal_id):
                 "https://graphql.anilist.co",
                 json={"query": _ANILIST_DESC_QUERY, "variables": {"id": int(mal_id)}},
                 headers={"Content-Type": "application/json"},
-                timeout=8,
+                timeout=(2, 8),
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -831,7 +846,7 @@ def _fetch_anilist_cover(mal_id):
                 "https://graphql.anilist.co",
                 json={"query": _ANILIST_QUERY, "variables": {"id": int(mal_id)}},
                 headers={"Content-Type": "application/json"},
-                timeout=8,
+                timeout=(2, 8),
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -863,6 +878,111 @@ def _fetch_anilist_cover(mal_id):
             _anilist_cache[key] = result
             _save_anilist_cache()
     return _proxy_image_url(result)
+
+
+# --- HD-обложки тайтлов по названию (для ранобэ/новелл) -------------------
+# У RanobeLib постеры максимум ~375px, поэтому тянем обложку с AniList
+# (обычно 460x649+) по оригинальному/английскому названию. Результат кешируем
+# на диск: один сетевой запрос на тайтл, дальше мгновенно.
+_ANILIST_TITLE_CACHE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "anilist_title_cover_cache.json"
+)
+_anilist_title_cache = {}  # title(lower) -> url|None
+_anilist_title_cache_lock = threading.Lock()
+
+_ANILIST_TITLE_QUERY = """
+query($s: String) {
+  Page(perPage: 5) {
+    media(search: $s, type: MANGA) {
+      id
+      format
+      title { romaji english native }
+      coverImage { extraLarge large }
+    }
+  }
+}
+"""
+
+
+def _load_anilist_title_cache():
+    global _anilist_title_cache
+    try:
+        with open(_ANILIST_TITLE_CACHE_FILE, "r", encoding="utf-8") as f:
+            _anilist_title_cache = json.load(f)
+    except Exception:
+        _anilist_title_cache = {}
+
+
+def _save_anilist_title_cache():
+    try:
+        with open(_ANILIST_TITLE_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(_anilist_title_cache, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"[shikimori_client] failed to save anilist title cache: {e}", flush=True)
+
+
+_load_anilist_title_cache()
+
+
+def fetch_anilist_cover_by_title(title):
+    """HD-обложка с AniList по названию тайтла (или None).
+    Предпочитает формат NOVEL, иначе берёт первый результат. Кеш на диске."""
+    global _anilist_last_call, _anilist_consecutive_fails
+    title = (title or "").strip()
+    if not title:
+        return None
+    key = title.lower()
+    with _anilist_title_cache_lock:
+        cached = _anilist_title_cache.get(key, "___MISSING___")
+    if cached != "___MISSING___":
+        return cached or None
+    if _anilist_neg.get("__all__", 0) > time.time():
+        return None
+
+    with _anilist_rate_lock:
+        if _anilist_neg.get("__all__", 0) > time.time():
+            return None
+        now = time.time()
+        wait = _ANILIST_MIN_INTERVAL - (now - _anilist_last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _anilist_last_call = time.time()
+
+        result = None
+        try:
+            resp = requests.post(
+                "https://graphql.anilist.co",
+                json={"query": _ANILIST_TITLE_QUERY, "variables": {"s": title}},
+                headers={"Content-Type": "application/json"},
+                timeout=(2, 8),
+            )
+            if resp.status_code == 200:
+                media = ((resp.json().get("data") or {}).get("Page") or {}).get("media") or []
+                chosen = next((m for m in media if (m.get("format") or "").upper() == "NOVEL"), None)
+                if chosen is None and media:
+                    chosen = media[0]
+                if chosen:
+                    cover = chosen.get("coverImage") or {}
+                    result = cover.get("extraLarge") or cover.get("large")
+                with _anilist_fail_lock:
+                    _anilist_consecutive_fails = 0
+            else:
+                print(
+                    f"[shikimori_client] anilist title non-200 for {title!r}: {resp.status_code}",
+                    flush=True,
+                )
+        except Exception as e:
+            print(f"[shikimori_client] anilist title fetch failed for {title!r}: {e}", flush=True)
+            with _anilist_fail_lock:
+                _anilist_consecutive_fails += 1
+                if _anilist_consecutive_fails >= _ANILIST_FAIL_THRESHOLD:
+                    _anilist_neg["__all__"] = time.time() + _ANILIST_FAIL_COOLDOWN
+                    _anilist_consecutive_fails = 0
+
+    with _anilist_title_cache_lock:
+        _anilist_title_cache[key] = result
+        _save_anilist_title_cache()
+    return result
 
 
 _meta_bg_inflight = set()
