@@ -137,7 +137,15 @@ def get_chapter_content(slug_url, volume, number):
     resp.raise_for_status()
     data = resp.json().get("data") or {}
     if data:
-        data["content"] = rewrite_content_images(data.get("content") or "")
+        # content бывает двух видов: HTML-строка или TipTap-документ (dict).
+        raw = data.get("content")
+        if isinstance(raw, dict):
+            html = render_summary_html(raw)
+        elif isinstance(raw, str):
+            html = raw
+        else:
+            html = ""
+        data["content"] = rewrite_content_images(html)
         _store(_chapter_cache, cache_key, data)
     return data or None
 
@@ -175,9 +183,24 @@ def render_summary_html(summary) -> str:
             return render_marks(node.get("text", ""), node.get("marks"))
         if node_type == "hardBreak":
             return "<br>"
+        if node_type == "image":
+            attrs = node.get("attrs") or {}
+            src = attrs.get("src") or attrs.get("url")
+            if src:
+                return f'<img src="{src}" alt="">'
+            return ""
+        if node_type == "horizontalRule":
+            return "<hr>"
         inner = "".join(render_node(c) for c in children)
         if node_type == "paragraph":
             return f"<p>{inner}</p>"
+        if node_type == "heading":
+            level = (node.get("attrs") or {}).get("level") or 2
+            try:
+                level = min(max(int(level), 1), 6)
+            except (TypeError, ValueError):
+                level = 2
+            return f"<h{level}>{inner}</h{level}>"
         return inner
 
     return "".join(render_node(c) for c in summary.get("content", []))
@@ -195,7 +218,7 @@ def rewrite_content_images(html: str) -> str:
     import re
     from urllib.parse import quote, urlsplit
 
-    if not html:
+    if not html or not isinstance(html, str):
         return html
 
     pattern = re.compile(r'(<img\b[^>]*?\bsrc=)(["\'])(.*?)\2', re.IGNORECASE | re.DOTALL)
