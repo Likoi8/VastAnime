@@ -2,6 +2,7 @@ import re
 import requests
 import time
 import socket as _socket
+import queue as _queue
 
 SHIKIMORI_BASE = "https://shikimori.io"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
@@ -687,7 +688,10 @@ _anilist_cache_lock = threading.Lock()
 _anilist_last_call = 0.0
 _ANILIST_MIN_INTERVAL = 2.0  # ~85 запросов/мин, с запасом от лимита AniList (90/мин)
 _anilist_title_last_call = 0.0
-_ANILIST_TITLE_MIN_INTERVAL = 1.0  # поиск обложки по названию — реже и быстрее
+_ANILIST_TITLE_MIN_INTERVAL = 4.0  # поиск обложки по названию — редко
+# Отдельный лок: фоновый прогрев HD-обложек не должен блокировать обычные
+# запросы обложек аниме (иначе пул потоков aiohttp забивается и сайт виснет).
+_anilist_title_lock = threading.Lock()
 _anilist_rate_lock = threading.Lock()  # сериализует троттлинг+HTTP всех вызовов _fetch_anilist_cover
 # Предохранитель: если AniList недоступен (например, IPv6-адрес blackhole),
 # все воркеры пула потоков забиваются ожиданием, и сайт перестаёт отвечать.
@@ -943,7 +947,7 @@ def fetch_anilist_cover_by_title(title):
     if _anilist_neg.get("__all__", 0) > time.time():
         return None
 
-    with _anilist_rate_lock:
+    with _anilist_title_lock:
         if _anilist_neg.get("__all__", 0) > time.time():
             return None
         now = time.time()
@@ -1050,7 +1054,7 @@ def _anilist_title_worker():
             if _anilist_neg.get("__all__", 0) > time.time():
                 time.sleep(30)
                 continue
-            fetch_anilist_cover_for_titles(candidates, max_attempts=2)
+            fetch_anilist_cover_for_titles(candidates, max_attempts=1)
         except Exception as e:
             print(f"[shikimori_client] anilist title warm failed: {e}", flush=True)
         finally:
