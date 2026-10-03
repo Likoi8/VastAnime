@@ -670,6 +670,13 @@ _anilist_cache_lock = threading.Lock()
 _anilist_last_call = 0.0
 _ANILIST_MIN_INTERVAL = 2.0  # ~85 запросов/мин, с запасом от лимита AniList (90/мин)
 _anilist_rate_lock = threading.Lock()  # сериализует троттлинг+HTTP всех вызовов _fetch_anilist_cover
+# Предохранитель: если AniList недоступен (например, IPv6-адрес blackhole),
+# все воркеры пула потоков забиваются ожиданием, и сайт перестаёт отвечать.
+# После нескольких ошибок подряд перестаём трогать AniList на время.
+_anilist_fail_lock = threading.Lock()
+_anilist_consecutive_fails = 0
+_ANILIST_FAIL_THRESHOLD = 3
+_ANILIST_FAIL_COOLDOWN = 300
 
 
 def _load_anilist_cache():
@@ -797,7 +804,7 @@ def _fetch_anilist_cover(mal_id):
     Троттлинг+HTTP-запрос сериализованы через _anilist_rate_lock, чтобы
     параллельные вызовы (из get_shikimori_info, фонового резолвера и
     get_updates) не били в AniList залпом и не ловили 429."""
-    global _anilist_last_call
+    global _anilist_last_call, _anilist_consecutive_fails
     if not mal_id:
         return None
     key = str(mal_id)
@@ -809,6 +816,9 @@ def _fetch_anilist_cover(mal_id):
         return None
 
     with _anilist_rate_lock:
+        # повторная проверка: пока ждали лок, предохранитель мог сработать
+        if _anilist_neg.get("__all__", 0) > time.time():
+            return None
         now = time.time()
         wait = _ANILIST_MIN_INTERVAL - (now - _anilist_last_call)
         if wait > 0:
@@ -829,6 +839,8 @@ def _fetch_anilist_cover(mal_id):
                 if media:
                     cover = media.get("coverImage") or {}
                     result = cover.get("extraLarge") or cover.get("large")
+                with _anilist_fail_lock:
+                    _anilist_consecutive_fails = 0
             else:
                 print(
                     f"[shikimori_client] anilist non-200 for mal_id={mal_id}: {resp.status_code}",
@@ -840,6 +852,11 @@ def _fetch_anilist_cover(mal_id):
                     _anilist_neg["__all__"] = time.time() + _ANILIST_NEG_429_TTL
         except Exception as e:
             print(f"[shikimori_client] anilist fetch failed for mal_id={mal_id}: {e}", flush=True)
+            with _anilist_fail_lock:
+                _anilist_consecutive_fails += 1
+                if _anilist_consecutive_fails >= _ANILIST_FAIL_THRESHOLD:
+                    _anilist_neg["__all__"] = time.time() + _ANILIST_FAIL_COOLDOWN
+                    _anilist_consecutive_fails = 0
 
     if result is not None:
         with _anilist_cache_lock:
@@ -950,6 +967,10 @@ def get_updates(limit=None, only_page=None, status="ongoing", order="aired_on"):
                 meta_map[aid] = {"real": False, "mal_id": None}
 
     results = []
+    # Ограничиваем время на добывание обложек с AniList: иначе медленный/
+    # недоступный AniList держит воркер потока очень долго (до 100 тайтлов ×
+    # троттлинг+таймаут), забивает пул и сайт перестаёт отвечать.
+    cover_deadline = time.time() + 20
     for item in data:
         meta = meta_map.get(item.get("id"), {"real": False, "mal_id": None})
         if not meta.get("real"):
@@ -957,7 +978,11 @@ def get_updates(limit=None, only_page=None, status="ongoing", order="aired_on"):
 
         # Обложки только с AniList — Shikimori больше не используется как
         # источник картинок (низкое качество / нестабильные заглушки).
-        image_url = _fetch_anilist_cover(meta.get("mal_id"))
+        mal_id = meta.get("mal_id")
+        if mal_id and (time.time() < cover_deadline or str(mal_id) in _anilist_cache):
+            image_url = _fetch_anilist_cover(mal_id)
+        else:
+            image_url = None
         if not image_url:
             img = item.get("image") or {}
             rel = img.get("original") or img.get("preview")
