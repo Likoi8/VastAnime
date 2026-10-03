@@ -4,17 +4,9 @@
 <script>
 document.getElementById('f').addEventListener('load', function(){
   var w=document.getElementById('f').contentWindow, d=w.document;
-  var b=d.querySelector('.ranobe-reader-back');
-  var out=document.getElementById('out');
+  var b=d.querySelector('.ranobe-reader-back'), out=document.getElementById('out');
   if(!b){out.textContent='RESULT NO_BUTTON';return;}
-  var info=[], el=b;
-  while(el && el.nodeType===1){
-    var cs=w.getComputedStyle(el);
-    if(cs.transform!=='none'||cs.filter!=='none'||cs.backdropFilter!=='none'||cs.perspective!=='none'||cs.willChange!=='auto'||(cs.contain&&cs.contain!=='none')){
-      info.push((el.tagName+'.'+(el.className||'')).slice(0,50)+' [transform='+cs.transform.slice(0,30)+' filter='+cs.filter.slice(0,20)+' bf='+cs.backdropFilter.slice(0,20)+' wc='+cs.willChange+' contain='+cs.contain+']');
-    }
-    el=el.parentElement;
-  }
-  out.textContent='RESULT '+ (info.join(' || ') || 'no containing-block triggers found');
+  var r=b.getBoundingClientRect(), cs=w.getComputedStyle(b);
+  out.textContent='RESULT left='+Math.round(r.left)+' top='+Math.round(r.top)+' pos='+cs.position+' cssLeft='+cs.left+' vw='+w.innerWidth;
 });
 </script></body></html>

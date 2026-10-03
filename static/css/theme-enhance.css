@@ -363,6 +363,13 @@ body.is-home .site-main {
 }
 
 /* --- Ридер ранобэ (текстовый) --- */
+/* .site-main иногда получает transform (анимация появления) — из-за него
+   position: fixed внутри считается от .site-main, а не от окна. Сбрасываем,
+   как на странице манги, иначе кнопка «назад» не встаёт у левого края. */
+body.ranobe-reader-body .site-main {
+  animation: none;
+  transform: none;
+}
 .ranobe-reader-wrap {
   max-width: 760px;
   margin: 0 auto;
