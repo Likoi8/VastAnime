@@ -256,10 +256,13 @@ _DECOR_BLOCK_RE = re.compile(
     r"(?:<hr\s*/?>\s*)?<(h[1-6]|p)>(.*?)</\1>\s*(?:<hr\s*/?>)?",
     re.IGNORECASE | re.DOTALL,
 )
+# Две и более подряд идущих картинок — это одна иллюстрация-разворот,
+# склеиваем их в единую полоску (без зазоров между частями).
+_IMG_RUN_RE = re.compile(r"(?:<img\b[^>]*>\s*){2,}", re.IGNORECASE)
 
 
 def clean_chapter_html(html):
-    """Убирает декоративные разделители глав, оставляя один тонкий разделитель."""
+    """Убирает декоративные разделители глав и склеивает иллюстрации в полоски."""
     if not isinstance(html, str) or not html:
         return html
 
@@ -270,7 +273,11 @@ def clean_chapter_html(html):
             return '<hr class="ranobe-scene-break">'
         return match.group(0)
 
-    return _DECOR_BLOCK_RE.sub(repl, html)
+    html = _DECOR_BLOCK_RE.sub(repl, html)
+    html = _IMG_RUN_RE.sub(
+        lambda m: '<div class="ranobe-strip">' + m.group(0).strip() + '</div>', html
+    )
+    return html
 
 
 def fetch_image(url):

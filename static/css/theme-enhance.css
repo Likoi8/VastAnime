@@ -441,6 +441,23 @@ body.ranobe-reader-body .site-main {
   margin: 1em auto;
   border-radius: var(--radius);
 }
+/* иллюстрация-разворот из нескольких картинок — единой полоской */
+.ranobe-reader-content .ranobe-strip {
+  width: fit-content;
+  max-width: 100%;
+  margin: 1em auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  line-height: 0;
+}
+.ranobe-reader-content .ranobe-strip img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+}
 .ranobe-reader-nav {
   display: flex;
   align-items: center;
