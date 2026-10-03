@@ -392,13 +392,15 @@ body.is-home .site-main {
 @media (min-width: 601px) and (max-width: 992px) {
   .back-btn.ranobe-reader-back { margin-left: -30px; }
 }
-/* На широком экране — как на странице тайтла: кнопка у левого края контента */
+/* На широком экране кнопка фиксируется сразу справа от сайдбара (188px),
+   а не внутри центрируемой колонки — иначе на широком мониторе уезжает вправо */
 @media (min-width: 993px) {
   .back-btn.ranobe-reader-back {
-    position: absolute;
-    left: 14px;
+    position: fixed;
+    left: calc(188px + 14px);
     top: 14px;
     margin-left: 0;
+    z-index: 30;
   }
 }
 @media (max-width: 600px) {
