@@ -383,11 +383,12 @@ body.ranobe-reader-body .site-main {
   flex-wrap: wrap;
   margin-bottom: 18px;
 }
-/* та же круглая кнопка, что на странице тайтла, но в потоке хедера */
-.back-btn.ranobe-reader-back {
-  position: static;
+/* текстовая ссылка «Назад» в шапке ридера */
+.ranobe-reader-title-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
   flex-shrink: 0;
-  margin-left: -6px;   /* немного левее */
 }
 .ranobe-reader-chapter-label {
   color: var(--text-dim, #9a9ab0);
@@ -395,25 +396,8 @@ body.ranobe-reader-body .site-main {
   margin-left: auto;
   text-align: right;
 }
-/* ПК: кнопку ещё левее; телефон: подпись главы по левому краю */
-@media (min-width: 601px) and (max-width: 992px) {
-  .back-btn.ranobe-reader-back { margin-left: -30px; }
-}
-/* На широком экране кнопка фиксируется сразу справа от сайдбара (188px),
-   а не внутри центрируемой колонки — иначе на широком мониторе уезжает вправо */
-@media (min-width: 993px) {
-  .back-btn.ranobe-reader-back {
-    position: fixed;
-    left: calc(188px + 14px);
-    top: 14px;
-    margin-left: 0;
-    z-index: 30;
-  }
-}
 @media (max-width: 600px) {
   .ranobe-reader-header { justify-content: flex-start; }
-  /* на телефоне кнопку ещё левее, почти к краю экрана */
-  .back-btn.ranobe-reader-back { margin-left: -24px; }
   .ranobe-reader-chapter-label {
     margin-left: 0;
     text-align: left;
