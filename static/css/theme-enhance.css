@@ -389,8 +389,17 @@ body.is-home .site-main {
   text-align: right;
 }
 /* ПК: кнопку ещё левее; телефон: подпись главы по левому краю */
-@media (min-width: 601px) {
+@media (min-width: 601px) and (max-width: 992px) {
   .back-btn.ranobe-reader-back { margin-left: -30px; }
+}
+/* На широком экране — как на странице тайтла: кнопка у левого края контента */
+@media (min-width: 993px) {
+  .back-btn.ranobe-reader-back {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    margin-left: 0;
+  }
 }
 @media (max-width: 600px) {
   .ranobe-reader-header { justify-content: flex-start; }
