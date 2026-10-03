@@ -5,6 +5,7 @@ Referer/Origin и набором поддерживаемых fields[] (у ра�
 в списке fields — они приходят по умолчанию).
 """
 import time
+import re
 import threading
 import requests
 
@@ -252,8 +253,8 @@ _DECOR_ONLY_RE = re.compile(
     r"]+$"
 )
 _DECOR_BLOCK_RE = re.compile(
-    r"(?:<hr\s*/?>\s*)?<(h[1-6]|p)>\s*([^<]{1,120}?)\s*</\1>\s*(?:<hr\s*/?>)?",
-    re.IGNORECASE,
+    r"(?:<hr\s*/?>\s*)?<(h[1-6]|p)>(.*?)</\1>\s*(?:<hr\s*/?>)?",
+    re.IGNORECASE | re.DOTALL,
 )
 
 
@@ -263,8 +264,9 @@ def clean_chapter_html(html):
         return html
 
     def repl(match):
-        inner = match.group(2) or ""
-        if _DECOR_ONLY_RE.match(inner):
+        # внутри может быть <b>/<i>/<strong> — для проверки снимаем теги
+        inner = re.sub(r"<[^>]+>", "", match.group(2) or "")
+        if inner and _DECOR_ONLY_RE.match(inner):
             return '<hr class="ranobe-scene-break">'
         return match.group(0)
 
